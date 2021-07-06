@@ -29,10 +29,10 @@ message TemperatureMeasurements {
 
 message StationWindspeedCommand {
     string station_id = 1 [(akkaserverless.field).entity_key = true];
-    repeated WindspeedMeasurements windspeed_measurements = 2;
+    repeated WindspeedMeasurement windspeed_measurements = 2;
 }
 
-message WindspeedMeasurements {
+message WindspeedMeasurement {
     google.protobuf.Timestamp measurement_time = 1;
     float windspeed_m_per_s = 2;
 }

@@ -16,6 +16,8 @@ public class WeatherStationImpl extends WeatherStationInterface {
     private final Logger logger = LoggerFactory.getLogger(WeatherStationImpl.class);
     private double temp_avg_overall = 0;
     private double windspeed_avg_overall = 0;
+    private long numberOfWindMeasurements = 0;
+    private long numberOfTempMeasurements = 0;
     private double latitude = 0;
     private double longitude = 0;
 
@@ -72,7 +74,15 @@ public class WeatherStationImpl extends WeatherStationInterface {
 
     @Override
     protected Empty publishWindspeedReport(WeatherStationPublishApi.StationWindspeedCommand command, CommandContext ctx) {
-        throw ctx.fail("The command handler for `PublishWindspeedReport` is not implemented, yet");
+        logger.info("publishing windspeed " + command);
+        var eventBuilder = WeatherStationDomain.WindspeedsAdded.newBuilder().setStationId(command.getStationId());
+        command.getWindspeedMeasurementsList().forEach(m -> eventBuilder.addWindspeed(WeatherStationDomain.Windspeed.newBuilder()
+                            .setMeasurementTime(m.getMeasurementTime())
+                            .setWindspeedMPerS(m.getWindspeedMPerS())
+                .build()));
+
+        ctx.emit(eventBuilder.build());
+        return Empty.getDefaultInstance();
     }
 
     @Override
@@ -86,12 +96,17 @@ public class WeatherStationImpl extends WeatherStationInterface {
     @Override
     public void temperaturesCelciusAdded(WeatherStationDomain.TemperaturesCelciusAdded event) {
         logger.info("temperatures added " + event);
-        //todo: calculate averages
+        var eventAvg = event.getTemperatureList().stream().mapToDouble(WeatherStationDomain.Temperature::getTemperatureCelcius).average().orElse(this.temp_avg_overall);
+        this.numberOfTempMeasurements+=1;
+        this.temp_avg_overall = this.temp_avg_overall + (eventAvg - this.temp_avg_overall)/numberOfTempMeasurements;
     }
 
     @Override
     public void windspeedsAdded(WeatherStationDomain.WindspeedsAdded event) {
-        throw new RuntimeException("The event handler for `WindspeedsAdded` is not implemented, yet");
+        logger.info("windspeeds added " + event);
+        var eventAvg = event.getWindspeedList().stream().mapToDouble(WeatherStationDomain.Windspeed::getWindspeedMPerS).average().orElse(this.windspeed_avg_overall);
+        this.numberOfWindMeasurements+=1;
+        this.windspeed_avg_overall = this.windspeed_avg_overall + (eventAvg - this.windspeed_avg_overall)/numberOfWindMeasurements;
     }
 
     @Override

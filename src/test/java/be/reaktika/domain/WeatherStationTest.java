@@ -49,8 +49,12 @@ public class WeatherStationTest {
 
         WeatherStationDomain.TemperaturesCelciusAdded event = WeatherStationDomain.TemperaturesCelciusAdded.newBuilder()
                     .setStationId("stationId")
-                .addTemperature(WeatherStationDomain.Temperature.newBuilder().setTemperatureCelcius(10).setMeasurementTime(Timestamp.newBuilder().build()).build())
-                .addTemperature(WeatherStationDomain.Temperature.newBuilder().setTemperatureCelcius(20).setMeasurementTime(Timestamp.newBuilder().build()).build())
+                .addTemperature(WeatherStationDomain.Temperature.newBuilder()
+                        .setTemperatureCelcius(10)
+                        .setMeasurementTime(Timestamp.newBuilder().build()).build())
+                .addTemperature(WeatherStationDomain.Temperature.newBuilder()
+                        .setTemperatureCelcius(20)
+                        .setMeasurementTime(Timestamp.newBuilder().build()).build())
                 .build();
 
         Mockito.verify(context).emit(event);
@@ -60,16 +64,23 @@ public class WeatherStationTest {
     @Test
     public void publishWindspeedReportTest() {
         entity = new WeatherStationImpl(entityId);
+
+        entity.publishWindspeedReportWithReply(WeatherStationPublishApi.StationWindspeedCommand.newBuilder()
+                .setStationId("stationId")
+                .addWindspeedMeasurements(WeatherStationPublishApi.WindspeedMeasurements.newBuilder()
+                        .setWindspeedMPerS(10)
+                        .setMeasurementTime(Timestamp.newBuilder().build()).build())
+                .addWindspeedMeasurements(WeatherStationPublishApi.WindspeedMeasurements.newBuilder()
+                        .setWindspeedMPerS(20)
+                        .setMeasurementTime(Timestamp.newBuilder().build()).build())
+                .build(), context);
+
+        WeatherStationDomain.WindspeedsAdded event = WeatherStationDomain.WindspeedsAdded.newBuilder()
+                .setStationId("stationId")
+                .addWindspeed(WeatherStationDomain.Windspeed.newBuilder().setWindspeedMPerS(10).build())
+                .addWindspeed(WeatherStationDomain.Windspeed.newBuilder().setWindspeedMPerS(20).build())
+                .build();
         
-        Mockito.when(context.fail("The command handler for `PublishWindspeedReport` is not implemented, yet"))
-            .thenReturn(new MockedContextFailure());
-        
-        // TODO: set fields in command, and update assertions to match implementation
-        assertThrows(MockedContextFailure.class, () -> {
-            entity.publishWindspeedReportWithReply(WeatherStationPublishApi.StationWindspeedCommand.newBuilder().build(), context);
-        });
-        
-        // TODO: if you wish to verify events:
-        //    Mockito.verify(context).emit(event);
+        Mockito.verify(context).emit(event);
     }
 }
