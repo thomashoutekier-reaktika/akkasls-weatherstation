@@ -1,4 +1,4 @@
-package be.reaktika.domain;
+package be.reaktika.weatherstation.domain;
 
 import com.akkaserverless.javasdk.eventsourcedentity.CommandContext;
 import com.google.protobuf.Timestamp;
@@ -8,14 +8,14 @@ import org.mockito.Mockito;
 
 public class WeatherStationTest {
     private String entityId = "entityId1";
-    private WeatherStationImpl entity;
+    private WeatherStationEntity entity;
     private CommandContext context = Mockito.mock(CommandContext.class);
     
     private class MockedContextFailure extends RuntimeException {};
     
     @Test
     public void registerStationTest() {
-        entity = new WeatherStationImpl(entityId);
+        entity = new WeatherStationEntity(entityId);
 
         entity.registerStation(WeatherStationDomain.StationRegistrationCommand.newBuilder()
                 .setStationId("stationId")
@@ -35,7 +35,7 @@ public class WeatherStationTest {
     
     @Test
     public void publishTemperatureReportTest() {
-        entity = new WeatherStationImpl(entityId);
+        entity = new WeatherStationEntity(entityId);
 
         var command = WeatherStationDomain.StationTemperatureCommand.newBuilder()
                 .setStationId("stationId")
@@ -61,7 +61,7 @@ public class WeatherStationTest {
     
     @Test
     public void publishWindspeedReportTest() {
-        entity = new WeatherStationImpl(entityId);
+        entity = new WeatherStationEntity(entityId);
 
         entity.publishWindspeedReport(WeatherStationDomain.StationWindspeedCommand.newBuilder()
                 .setStationId("stationId")

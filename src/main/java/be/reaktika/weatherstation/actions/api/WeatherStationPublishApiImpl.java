@@ -1,7 +1,7 @@
-package be.reaktika.weatherstation.actions;
+package be.reaktika.weatherstation.actions.api;
 
-import be.reaktika.WeatherStationPublishApi.*;
-import be.reaktika.domain.WeatherStationDomain;
+import be.reaktika.weatherstation.api.WeatherStationApi.*;
+import be.reaktika.weatherstation.domain.WeatherStationDomain;
 import com.akkaserverless.javasdk.Reply;
 import com.akkaserverless.javasdk.ServiceCall;
 import com.akkaserverless.javasdk.ServiceCallRef;
@@ -15,8 +15,7 @@ import org.slf4j.LoggerFactory;
 @Action
 public class WeatherStationPublishApiImpl {
 
-    private static final String WEATHERSTATION_ENTITY_SERVICE_NAME = "be.reaktika.domain.WeatherStationService";
-    private static final String API_SERVICE_NAME = "be.reaktika.WeatherStationPublishService";
+    private static final String WEATHERSTATION_ENTITY_SERVICE_NAME = "be.reaktika.weatherstation.domain.WeatherStationEntityService";
     private final Logger logger = LoggerFactory.getLogger(WeatherStationPublishApiImpl.class);
 
     @Handler

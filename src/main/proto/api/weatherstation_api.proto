@@ -3,13 +3,13 @@ syntax = "proto3";
 
 import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
-import "value-entities/weatherstation_domain.proto";
+import "domain/weatherstation_domain.proto";
 import "akkaserverless/annotations.proto";
 import "google/api/annotations.proto";
 
-package be.reaktika;
+package be.reaktika.weatherstation.api;
 
-option java_outer_classname = "WeatherStationPublishApi";
+option java_outer_classname = "WeatherStationApi";
 
 message StationRegistrationRequest {
     string station_id = 1;
@@ -52,7 +52,7 @@ message StationStateResponse {
 
 }
 
-service WeatherStationPublishService {
+service WeatherStationApiService {
     rpc RegisterStation(StationRegistrationRequest) returns (google.protobuf.Empty) {
         option (google.api.http) = {
             post: "/weather/station/register"
@@ -73,11 +73,11 @@ service WeatherStationPublishService {
         };
     }
 
-    rpc GetDomainState(GetStationStateRequest) returns (be.reaktika.domain.StationState) {
+    rpc GetDomainState(GetStationStateRequest) returns (be.reaktika.weatherstation.domain.StationState) {
         option (google.api.http) = {
             get: "/weather/station/{station_id}"
         };
     }
 
-    rpc ConvertDomainStateToResponse(be.reaktika.domain.StationState) returns (StationStateResponse);
+    rpc ConvertDomainStateToResponse(be.reaktika.weatherstation.domain.StationState) returns (StationStateResponse);
 }

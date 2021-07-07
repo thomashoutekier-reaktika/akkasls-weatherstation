@@ -1,8 +1,8 @@
-package be.reaktika.domain;
+package be.reaktika.weatherstation;
 
-import be.reaktika.Main;
-import be.reaktika.WeatherStationPublishApi;
-import be.reaktika.WeatherStationPublishServiceClient;
+import be.reaktika.weatherstation.api.WeatherStationApi.*;
+
+import be.reaktika.weatherstation.api.WeatherStationApiServiceClient;
 import com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestkitResource;
 import com.google.protobuf.util.Timestamps;
 import org.junit.ClassRule;
@@ -26,16 +26,16 @@ public class WeatherStationIntegrationTest {
     /**
      * Use the generated gRPC client to call the service through the Akka Serverless proxy.
      */
-    private final WeatherStationPublishServiceClient client;
+    private final WeatherStationApiServiceClient client;
 
     public WeatherStationIntegrationTest() {
-        client = WeatherStationPublishServiceClient.create(testkit.getGrpcClientSettings(), testkit.getActorSystem());
+        client = WeatherStationApiServiceClient.create(testkit.getGrpcClientSettings(), testkit.getActorSystem());
     }
     
     @Test
     public void registerStationOnNonExistingEntity() throws Exception {
         var id = UUID.randomUUID().toString();
-        client.registerStation(WeatherStationPublishApi.StationRegistrationRequest.newBuilder()
+        client.registerStation(StationRegistrationRequest.newBuilder()
                     .setStationId(id)
                 .setStationName(id + "name")
                 .setLatitude(10)
@@ -45,7 +45,7 @@ public class WeatherStationIntegrationTest {
 
         Thread.sleep(1000);
 
-        var state = client.getDomainState(WeatherStationPublishApi.GetStationStateRequest.newBuilder()
+        var state = client.getDomainState(GetStationStateRequest.newBuilder()
                     .setStationId(id).build()).toCompletableFuture().get(2, SECONDS);
 
         System.out.println("received response " + state);
@@ -63,19 +63,19 @@ public class WeatherStationIntegrationTest {
         var id = UUID.randomUUID().toString();
         var first = Timestamps.fromMillis(System.currentTimeMillis());
         var second = Timestamps.fromMillis(System.currentTimeMillis() + 1000);
-        client.publishTemperatureReport(WeatherStationPublishApi.StationTemperaturePublishRequest.newBuilder()
+        client.publishTemperatureReport(StationTemperaturePublishRequest.newBuilder()
                 .setStationId(id)
-                .addTempMeasurements(WeatherStationPublishApi.TemperatureMeasurements.newBuilder()
+                .addTempMeasurements(TemperatureMeasurements.newBuilder()
                         .setTemperatureCelcius(10)
                         .setMeasurementTime(first))
-                .addTempMeasurements(WeatherStationPublishApi.TemperatureMeasurements.newBuilder()
+                .addTempMeasurements(TemperatureMeasurements.newBuilder()
                         .setTemperatureCelcius(20)
                         .setMeasurementTime(second))
                 .build()).toCompletableFuture().get(2, SECONDS);
 
         Thread.sleep(1000);
 
-        var state = client.getDomainState(WeatherStationPublishApi.GetStationStateRequest.newBuilder()
+        var state = client.getDomainState(GetStationStateRequest.newBuilder()
                 .setStationId(id).build()).toCompletableFuture().get(2, SECONDS);
         System.out.println("received response " + state);
 
@@ -94,13 +94,13 @@ public class WeatherStationIntegrationTest {
         var id = UUID.randomUUID().toString();
         var first = Timestamps.fromMillis(System.currentTimeMillis());
         var second = Timestamps.fromMillis(System.currentTimeMillis() + 1000);
-        client.publishWindspeedReport(WeatherStationPublishApi.StationWindspeedPublishRequest.newBuilder()
+        client.publishWindspeedReport(StationWindspeedPublishRequest.newBuilder()
                 .setStationId(id)
-                .addWindspeedMeasurements(WeatherStationPublishApi.WindspeedMeasurement.newBuilder()
+                .addWindspeedMeasurements(WindspeedMeasurement.newBuilder()
                         .setMeasurementTime(first)
                         .setWindspeedMPerS(30)
                         .build())
-                .addWindspeedMeasurements(WeatherStationPublishApi.WindspeedMeasurement.newBuilder()
+                .addWindspeedMeasurements(WindspeedMeasurement.newBuilder()
                         .setMeasurementTime(second)
                         .setWindspeedMPerS(40)
                         .build())
@@ -108,7 +108,7 @@ public class WeatherStationIntegrationTest {
 
         Thread.sleep(1000);
 
-        var state = client.getDomainState(WeatherStationPublishApi.GetStationStateRequest.newBuilder()
+        var state = client.getDomainState(GetStationStateRequest.newBuilder()
                 .setStationId(id).build()).toCompletableFuture().get(2, SECONDS);
         System.out.println("received response " + state);
 
