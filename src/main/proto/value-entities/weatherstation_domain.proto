@@ -3,6 +3,7 @@ syntax = "proto3";
 package be.reaktika.domain;
 
 import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
 import "akkaserverless/annotations.proto";
 
 option java_outer_classname = "WeatherStationDomain";
@@ -24,6 +25,47 @@ message WeatherStationState {
     double longitude = 4;
     double average_temp_celcius_overall = 5;
     double average_windspeed_overall = 6;
+}
+
+message StationRegistrationCommand {
+    string station_id = 1 [(akkaserverless.field).entity_key = true];
+    string station_name = 2;
+    double latitude = 3;
+    double longitude = 4;
+}
+
+message StationTemperatureCommand {
+    string station_id = 1 [(akkaserverless.field).entity_key = true];
+    repeated TemperatureMeasurements temp_measurements = 2;
+}
+
+message TemperatureMeasurements {
+    google.protobuf.Timestamp measurement_time = 1;
+    float temperature_celcius = 2;
+}
+
+message StationWindspeedCommand {
+    string station_id = 1 [(akkaserverless.field).entity_key = true];
+    repeated WindspeedMeasurement windspeed_measurements = 2;
+}
+
+message WindspeedMeasurement {
+    google.protobuf.Timestamp measurement_time = 1;
+    float windspeed_m_per_s = 2;
+}
+
+message GetStationStateCommand {
+    string station_id = 1 [(akkaserverless.field).entity_key = true];
+}
+
+message StationState {
+    string station_id = 1;
+    string station_name = 2;
+    double latitude = 3;
+    double longitude = 4;
+    double average_temp_celcius_overall = 5;
+    double average_windspeed_overall = 6;
+
 }
 
 message StationRegistered {
@@ -51,6 +93,19 @@ message WindspeedsAdded {
 message Windspeed {
     google.protobuf.Timestamp measurement_time = 1;
     float windspeed_m_per_s = 2;
+}
+
+
+service WeatherStationService {
+    option (akkaserverless.service) = {
+        type : SERVICE_TYPE_ENTITY
+        component : ".domain.WeatherStation"
+    };
+
+    rpc RegisterStation(StationRegistrationCommand) returns (google.protobuf.Empty);
+    rpc PublishTemperatureReport(StationTemperatureCommand) returns (google.protobuf.Empty);
+    rpc PublishWindspeedReport(StationWindspeedCommand) returns (google.protobuf.Empty);
+    rpc GetState (GetStationStateCommand) returns (StationState);
 }
 
 

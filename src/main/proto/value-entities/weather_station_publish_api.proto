@@ -3,6 +3,7 @@ syntax = "proto3";
 
 import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
+import "value-entities/weatherstation_domain.proto";
 import "akkaserverless/annotations.proto";
 import "google/api/annotations.proto";
 
@@ -10,15 +11,15 @@ package be.reaktika;
 
 option java_outer_classname = "WeatherStationPublishApi";
 
-message StationRegistrationCommand {
-    string station_id = 1 [(akkaserverless.field).entity_key = true];
+message StationRegistrationRequest {
+    string station_id = 1;
     string station_name = 2;
     double latitude = 3;
     double longitude = 4;
 }
 
-message StationTemperatureCommand {
-    string station_id = 1 [(akkaserverless.field).entity_key = true];
+message StationTemperaturePublishRequest {
+    string station_id = 1;
     repeated TemperatureMeasurements temp_measurements = 2;
 }
 
@@ -27,8 +28,8 @@ message TemperatureMeasurements {
     float temperature_celcius = 2;
 }
 
-message StationWindspeedCommand {
-    string station_id = 1 [(akkaserverless.field).entity_key = true];
+message StationWindspeedPublishRequest {
+    string station_id = 1;
     repeated WindspeedMeasurement windspeed_measurements = 2;
 }
 
@@ -37,49 +38,46 @@ message WindspeedMeasurement {
     float windspeed_m_per_s = 2;
 }
 
-message GetStationStateCommand {
-    string station_id = 1 [(akkaserverless.field).entity_key = true];
+message GetStationStateRequest {
+    string station_id = 1;
 }
 
-message StationState {
-    string station_id = 1;
-    string station_name = 2;
-    double latitude = 3;
-    double longitude = 4;
-    double average_temp_celcius_overall = 5;
-    double average_windspeed_overall = 6;
+message StationStateResponse {
+    double average_temp_celcius_overall = 1;
+    double average_windspeed_overall = 2;
+    string station_id = 3;
+    double latitude = 4;
+    double longitude = 5;
+    string station_name = 6;
 
 }
 
 service WeatherStationPublishService {
-    option (akkaserverless.service) = {
-        type : SERVICE_TYPE_ENTITY
-        component : ".domain.WeatherStation"
-    };
-
-    rpc RegisterStation(StationRegistrationCommand) returns (google.protobuf.Empty) {
+    rpc RegisterStation(StationRegistrationRequest) returns (google.protobuf.Empty) {
         option (google.api.http) = {
             post: "/weather/station/register"
             body: "*"
         };
     }
-    rpc PublishTemperatureReport(StationTemperatureCommand) returns (google.protobuf.Empty) {
+    rpc PublishTemperatureReport(StationTemperaturePublishRequest) returns (google.protobuf.Empty) {
         option (google.api.http) = {
             post: "/weather/station/publish/temperature"
             body: "*"
         };
     }
 
-    rpc PublishWindspeedReport(StationWindspeedCommand) returns (google.protobuf.Empty) {
+    rpc PublishWindspeedReport(StationWindspeedPublishRequest) returns (google.protobuf.Empty) {
         option (google.api.http) = {
             post: "/weather/station/publish/windspeed"
             body: "*"
         };
     }
 
-    rpc GetState(GetStationStateCommand) returns (StationState) {
+    rpc GetDomainState(GetStationStateRequest) returns (be.reaktika.domain.StationState) {
         option (google.api.http) = {
             get: "/weather/station/{station_id}"
         };
     }
+
+    rpc ConvertDomainStateToResponse(be.reaktika.domain.StationState) returns (StationStateResponse);
 }

@@ -1,14 +1,23 @@
 package be.reaktika;
 
+import be.reaktika.domain.WeatherStationDomain;
+import be.reaktika.domain.WeatherStationImpl;
+import be.reaktika.weatherstation.actions.WeatherStationPublishApiImpl;
 import com.akkaserverless.javasdk.AkkaServerless;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static be.reaktika.MainComponentRegistrations.withGeneratedComponentsAdded;
-
 public final class Main {
 
-    public static final AkkaServerless SERVICE = withGeneratedComponentsAdded(new AkkaServerless());
+    public static final AkkaServerless SERVICE =
+            new AkkaServerless()
+            .registerEventSourcedEntity(WeatherStationImpl.class,
+                    WeatherStationDomain.getDescriptor().findServiceByName("WeatherStationService"),
+                    WeatherStationDomain.getDescriptor())
+            .registerAction(WeatherStationPublishApiImpl.class,
+                    WeatherStationPublishApi.getDescriptor().findServiceByName("WeatherStationPublishService"),
+                    WeatherStationPublishApi.getDescriptor()
+                    );
     private static final Logger LOG = LoggerFactory.getLogger(Main.class);
 
 

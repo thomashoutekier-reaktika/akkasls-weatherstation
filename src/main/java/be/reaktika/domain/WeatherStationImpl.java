@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 
 /** An event sourced entity. */
 @EventSourcedEntity(entityType = "weatherstation")
-public class WeatherStationImpl extends WeatherStationInterface {
+public class WeatherStationImpl {
     @SuppressWarnings("unused")
     private final String entityId;
     private String name = "unknown";
@@ -25,7 +25,7 @@ public class WeatherStationImpl extends WeatherStationInterface {
         this.entityId = entityId;
     }
 
-    @Override
+    @Snapshot
     public WeatherStationDomain.WeatherStationState snapshot() {
         return WeatherStationDomain.WeatherStationState
                 .newBuilder()
@@ -38,7 +38,7 @@ public class WeatherStationImpl extends WeatherStationInterface {
                 .build();
     }
 
-    @Override
+    @SnapshotHandler
     public void handleSnapshot(WeatherStationDomain.WeatherStationState snapshot) {
         this.temp_avg_overall = snapshot.getAverageTempCelciusOverall();
         this.windspeed_avg_overall = snapshot.getAverageWindspeedOverall();
@@ -46,8 +46,8 @@ public class WeatherStationImpl extends WeatherStationInterface {
         this.longitude = snapshot.getLongitude();
     }
 
-    @Override
-    protected Empty registerStation(WeatherStationPublishApi.StationRegistrationCommand command, CommandContext ctx) {
+    @CommandHandler
+    protected Empty registerStation(WeatherStationDomain.StationRegistrationCommand command, CommandContext ctx) {
         logger.info("registering station " + command);
         var event = WeatherStationDomain.StationRegistered.newBuilder()
                 .setStationName(command.getStationName())
@@ -58,8 +58,8 @@ public class WeatherStationImpl extends WeatherStationInterface {
         return Empty.getDefaultInstance();
     }
 
-    @Override
-    protected Empty publishTemperatureReport(WeatherStationPublishApi.StationTemperatureCommand command, CommandContext ctx) {
+    @CommandHandler
+    protected Empty publishTemperatureReport(WeatherStationDomain.StationTemperatureCommand command, CommandContext ctx) {
         logger.info("publishing temperature " + command);
         var eventBuilder = WeatherStationDomain.TemperaturesCelciusAdded.newBuilder()
                 .setStationId(command.getStationId());
@@ -72,8 +72,8 @@ public class WeatherStationImpl extends WeatherStationInterface {
 
     }
 
-    @Override
-    protected Empty publishWindspeedReport(WeatherStationPublishApi.StationWindspeedCommand command, CommandContext ctx) {
+    @CommandHandler
+    protected Empty publishWindspeedReport(WeatherStationDomain.StationWindspeedCommand command, CommandContext ctx) {
         logger.info("publishing windspeed " + command);
         var eventBuilder = WeatherStationDomain.WindspeedsAdded.newBuilder().setStationId(command.getStationId());
         command.getWindspeedMeasurementsList().forEach(m -> eventBuilder.addWindspeed(WeatherStationDomain.Windspeed.newBuilder()
@@ -85,7 +85,7 @@ public class WeatherStationImpl extends WeatherStationInterface {
         return Empty.getDefaultInstance();
     }
 
-    @Override
+    @EventHandler
     public void stationRegistered(WeatherStationDomain.StationRegistered event) {
         this.name = event.getStationName();
         this.latitude = event.getLatitude();
@@ -93,7 +93,7 @@ public class WeatherStationImpl extends WeatherStationInterface {
         logger.info("station registered");
     }
 
-    @Override
+    @EventHandler
     public void temperaturesCelciusAdded(WeatherStationDomain.TemperaturesCelciusAdded event) {
         logger.info("temperatures added " + event);
         var eventAvg = event.getTemperatureList().stream().mapToDouble(WeatherStationDomain.Temperature::getTemperatureCelcius).average().orElse(this.temp_avg_overall);
@@ -101,7 +101,7 @@ public class WeatherStationImpl extends WeatherStationInterface {
         this.temp_avg_overall = this.temp_avg_overall + (eventAvg - this.temp_avg_overall)/numberOfTempMeasurements;
     }
 
-    @Override
+    @EventHandler
     public void windspeedsAdded(WeatherStationDomain.WindspeedsAdded event) {
         logger.info("windspeeds added " + event);
         var eventAvg = event.getWindspeedList().stream().mapToDouble(WeatherStationDomain.Windspeed::getWindspeedMPerS).average().orElse(this.windspeed_avg_overall);
@@ -109,10 +109,10 @@ public class WeatherStationImpl extends WeatherStationInterface {
         this.windspeed_avg_overall = this.windspeed_avg_overall + (eventAvg - this.windspeed_avg_overall)/numberOfWindMeasurements;
     }
 
-    @Override
-    public WeatherStationPublishApi.StationState getState(WeatherStationPublishApi.GetStationStateCommand command, CommandContext ctx) {
+    @CommandHandler
+    public WeatherStationDomain.StationState getState(WeatherStationDomain.GetStationStateCommand command, CommandContext ctx) {
         logger.info("getting state from " + ctx.entityId());
-        return WeatherStationPublishApi.StationState.newBuilder()
+        return WeatherStationDomain.StationState.newBuilder()
                 .setAverageTempCelciusOverall(this.temp_avg_overall)
                 .setAverageWindspeedOverall(this.windspeed_avg_overall)
                 .setLatitude(this.latitude)

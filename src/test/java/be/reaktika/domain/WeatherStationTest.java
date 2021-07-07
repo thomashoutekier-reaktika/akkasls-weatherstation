@@ -1,6 +1,5 @@
 package be.reaktika.domain;
 
-import be.reaktika.WeatherStationPublishApi;
 import com.akkaserverless.javasdk.eventsourcedentity.CommandContext;
 import com.google.protobuf.Timestamp;
 import org.junit.Test;
@@ -18,7 +17,7 @@ public class WeatherStationTest {
     public void registerStationTest() {
         entity = new WeatherStationImpl(entityId);
 
-        entity.registerStationWithReply(WeatherStationPublishApi.StationRegistrationCommand.newBuilder()
+        entity.registerStation(WeatherStationDomain.StationRegistrationCommand.newBuilder()
                 .setStationId("stationId")
                 .setStationName("name")
                 .setLatitude(10)
@@ -38,12 +37,12 @@ public class WeatherStationTest {
     public void publishTemperatureReportTest() {
         entity = new WeatherStationImpl(entityId);
 
-        var command = WeatherStationPublishApi.StationTemperatureCommand.newBuilder()
+        var command = WeatherStationDomain.StationTemperatureCommand.newBuilder()
                 .setStationId("stationId")
-                    .addTempMeasurements(WeatherStationPublishApi.TemperatureMeasurements.newBuilder().setTemperatureCelcius(10).setMeasurementTime(Timestamp.newBuilder().build()))
-                    .addTempMeasurements(WeatherStationPublishApi.TemperatureMeasurements.newBuilder().setTemperatureCelcius(20).setMeasurementTime(Timestamp.newBuilder().build()))
+                    .addTempMeasurements(WeatherStationDomain.TemperatureMeasurements.newBuilder().setTemperatureCelcius(10).setMeasurementTime(Timestamp.newBuilder().build()))
+                    .addTempMeasurements(WeatherStationDomain.TemperatureMeasurements.newBuilder().setTemperatureCelcius(20).setMeasurementTime(Timestamp.newBuilder().build()))
                 .build();
-        entity.publishTemperatureReportWithReply(command, context);
+        entity.publishTemperatureReport(command, context);
 
 
         WeatherStationDomain.TemperaturesCelciusAdded event = WeatherStationDomain.TemperaturesCelciusAdded.newBuilder()
@@ -64,12 +63,12 @@ public class WeatherStationTest {
     public void publishWindspeedReportTest() {
         entity = new WeatherStationImpl(entityId);
 
-        entity.publishWindspeedReportWithReply(WeatherStationPublishApi.StationWindspeedCommand.newBuilder()
+        entity.publishWindspeedReport(WeatherStationDomain.StationWindspeedCommand.newBuilder()
                 .setStationId("stationId")
-                .addWindspeedMeasurements(WeatherStationPublishApi.WindspeedMeasurement.newBuilder()
+                .addWindspeedMeasurements(WeatherStationDomain.WindspeedMeasurement.newBuilder()
                         .setWindspeedMPerS(10)
                         .setMeasurementTime(Timestamp.newBuilder().build()).build())
-                .addWindspeedMeasurements(WeatherStationPublishApi.WindspeedMeasurement.newBuilder()
+                .addWindspeedMeasurements(WeatherStationDomain.WindspeedMeasurement.newBuilder()
                         .setWindspeedMPerS(20)
                         .setMeasurementTime(Timestamp.newBuilder().build()).build())
                 .build(), context);
