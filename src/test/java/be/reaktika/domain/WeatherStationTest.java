@@ -6,7 +6,6 @@ import com.google.protobuf.Timestamp;
 import org.junit.Test;
 import org.mockito.Mockito;
 
-import static org.junit.Assert.assertThrows;
 
 public class WeatherStationTest {
     private String entityId = "entityId1";
@@ -67,18 +66,22 @@ public class WeatherStationTest {
 
         entity.publishWindspeedReportWithReply(WeatherStationPublishApi.StationWindspeedCommand.newBuilder()
                 .setStationId("stationId")
-                .addWindspeedMeasurements(WeatherStationPublishApi.WindspeedMeasurements.newBuilder()
+                .addWindspeedMeasurements(WeatherStationPublishApi.WindspeedMeasurement.newBuilder()
                         .setWindspeedMPerS(10)
                         .setMeasurementTime(Timestamp.newBuilder().build()).build())
-                .addWindspeedMeasurements(WeatherStationPublishApi.WindspeedMeasurements.newBuilder()
+                .addWindspeedMeasurements(WeatherStationPublishApi.WindspeedMeasurement.newBuilder()
                         .setWindspeedMPerS(20)
                         .setMeasurementTime(Timestamp.newBuilder().build()).build())
                 .build(), context);
 
         WeatherStationDomain.WindspeedsAdded event = WeatherStationDomain.WindspeedsAdded.newBuilder()
                 .setStationId("stationId")
-                .addWindspeed(WeatherStationDomain.Windspeed.newBuilder().setWindspeedMPerS(10).build())
-                .addWindspeed(WeatherStationDomain.Windspeed.newBuilder().setWindspeedMPerS(20).build())
+                .addWindspeed(WeatherStationDomain.Windspeed.newBuilder()
+                        .setWindspeedMPerS(10)
+                        .setMeasurementTime(Timestamp.newBuilder().build()).build())
+                .addWindspeed(WeatherStationDomain.Windspeed.newBuilder()
+                        .setWindspeedMPerS(20)
+                        .setMeasurementTime(Timestamp.newBuilder().build()).build())
                 .build();
         
         Mockito.verify(context).emit(event);
