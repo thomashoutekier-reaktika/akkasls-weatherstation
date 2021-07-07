@@ -4,15 +4,13 @@ import be.reaktika.Main;
 import be.reaktika.WeatherStationPublishApi;
 import be.reaktika.WeatherStationPublishServiceClient;
 import com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestkitResource;
-import com.google.protobuf.Timestamp;
 import com.google.protobuf.util.Timestamps;
 import org.junit.ClassRule;
 import org.junit.Test;
 
-import java.time.Instant;
 import java.util.UUID;
 
-import static java.util.concurrent.TimeUnit.*;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.junit.Assert.assertEquals;
 
 // Example of an integration test calling our service via the Akka Serverless proxy
@@ -29,7 +27,7 @@ public class WeatherStationIntegrationTest {
      * Use the generated gRPC client to call the service through the Akka Serverless proxy.
      */
     private final WeatherStationPublishServiceClient client;
-    
+
     public WeatherStationIntegrationTest() {
         client = WeatherStationPublishServiceClient.create(testkit.getGrpcClientSettings(), testkit.getActorSystem());
     }
@@ -37,15 +35,20 @@ public class WeatherStationIntegrationTest {
     @Test
     public void registerStationOnNonExistingEntity() throws Exception {
         var id = UUID.randomUUID().toString();
-        client.registerStation(WeatherStationPublishApi.StationRegistrationCommand.newBuilder()
+        client.registerStation(WeatherStationPublishApi.StationRegistrationRequest.newBuilder()
                     .setStationId(id)
                 .setStationName(id + "name")
                 .setLatitude(10)
                 .setLongitude(20)
                 .build()).toCompletableFuture().get(2, SECONDS);
 
-        var state = client.getState(WeatherStationPublishApi.GetStationStateCommand.newBuilder()
+
+        Thread.sleep(1000);
+
+        var state = client.getDomainState(WeatherStationPublishApi.GetStationStateRequest.newBuilder()
                     .setStationId(id).build()).toCompletableFuture().get(2, SECONDS);
+
+        System.out.println("received response " + state);
         assertEquals(id,state.getStationId());
         assertEquals(id + "name",state.getStationName());
         assertEquals(10, state.getLatitude(), 0.001);
@@ -60,7 +63,7 @@ public class WeatherStationIntegrationTest {
         var id = UUID.randomUUID().toString();
         var first = Timestamps.fromMillis(System.currentTimeMillis());
         var second = Timestamps.fromMillis(System.currentTimeMillis() + 1000);
-        client.publishTemperatureReport(WeatherStationPublishApi.StationTemperatureCommand.newBuilder()
+        client.publishTemperatureReport(WeatherStationPublishApi.StationTemperaturePublishRequest.newBuilder()
                 .setStationId(id)
                 .addTempMeasurements(WeatherStationPublishApi.TemperatureMeasurements.newBuilder()
                         .setTemperatureCelcius(10)
@@ -70,8 +73,12 @@ public class WeatherStationIntegrationTest {
                         .setMeasurementTime(second))
                 .build()).toCompletableFuture().get(2, SECONDS);
 
-        var state = client.getState(WeatherStationPublishApi.GetStationStateCommand.newBuilder()
+        Thread.sleep(1000);
+
+        var state = client.getDomainState(WeatherStationPublishApi.GetStationStateRequest.newBuilder()
                 .setStationId(id).build()).toCompletableFuture().get(2, SECONDS);
+        System.out.println("received response " + state);
+
         assertEquals(id,state.getStationId());
         assertEquals("unknown",state.getStationName());
         assertEquals(0, state.getLatitude(), 0.001);
@@ -87,7 +94,7 @@ public class WeatherStationIntegrationTest {
         var id = UUID.randomUUID().toString();
         var first = Timestamps.fromMillis(System.currentTimeMillis());
         var second = Timestamps.fromMillis(System.currentTimeMillis() + 1000);
-        client.publishWindspeedReport(WeatherStationPublishApi.StationWindspeedCommand.newBuilder()
+        client.publishWindspeedReport(WeatherStationPublishApi.StationWindspeedPublishRequest.newBuilder()
                 .setStationId(id)
                 .addWindspeedMeasurements(WeatherStationPublishApi.WindspeedMeasurement.newBuilder()
                         .setMeasurementTime(first)
@@ -99,8 +106,12 @@ public class WeatherStationIntegrationTest {
                         .build())
                 .build()).toCompletableFuture().get(2, SECONDS);
 
-        var state = client.getState(WeatherStationPublishApi.GetStationStateCommand.newBuilder()
+        Thread.sleep(1000);
+
+        var state = client.getDomainState(WeatherStationPublishApi.GetStationStateRequest.newBuilder()
                 .setStationId(id).build()).toCompletableFuture().get(2, SECONDS);
+        System.out.println("received response " + state);
+
         assertEquals(id,state.getStationId());
         assertEquals("unknown",state.getStationName());
         assertEquals(0, state.getLatitude(), 0.001);
