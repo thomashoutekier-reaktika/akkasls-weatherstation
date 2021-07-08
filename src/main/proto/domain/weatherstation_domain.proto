@@ -95,7 +95,7 @@ service WeatherStationEntityService {
     rpc RegisterStation(StationRegistrationCommand) returns (google.protobuf.Empty);
     rpc PublishTemperatureReport(StationTemperatureCommand) returns (google.protobuf.Empty);
     rpc PublishWindspeedReport(StationWindspeedCommand) returns (google.protobuf.Empty);
-    rpc GetState (GetStationStateCommand) returns (StationState);
+    rpc GetState (GetStationStateCommand) returns (google.protobuf.Empty);
 }
 
 

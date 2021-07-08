@@ -62,13 +62,15 @@ public class WeatherStationPublishApiImpl {
     }
 
     @Handler
-    public Reply<WeatherStationDomain.StationState> getDomainState(GetStationStateRequest request, ActionContext ctx) {
-        logger.info("getting state from " + request.getStationId() + " in ctx " + ctx.eventSubject());
+    public Reply<StationStateResponse> getDomainState(GetStationStateRequest request, ActionContext ctx) {
+        logger.info("getting state from " + request.getStationId() );
         ServiceCallRef<WeatherStationDomain.GetStationStateCommand> getStateCall = ctx.serviceCallFactory()
                                 .lookup(WEATHERSTATION_ENTITY_SERVICE_NAME,"GetState", WeatherStationDomain.GetStationStateCommand.class);
-
         ServiceCall domainRequest = getStateCall.createCall(WeatherStationDomain.GetStationStateCommand.newBuilder().setStationId(request.getStationId()).build());
+
         //forward to the converter by means of the message-type
+        logger.info("forwarding getState request to entity");
+
         return Reply.forward(domainRequest);
 
     }

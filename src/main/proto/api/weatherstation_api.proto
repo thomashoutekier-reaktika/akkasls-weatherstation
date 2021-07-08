@@ -73,7 +73,7 @@ service WeatherStationApiService {
         };
     }
 
-    rpc GetDomainState(GetStationStateRequest) returns (be.reaktika.weatherstation.domain.StationState) {
+    rpc GetDomainState(GetStationStateRequest) returns (StationStateResponse) {
         option (google.api.http) = {
             get: "/weather/station/{station_id}"
         };

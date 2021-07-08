@@ -7,6 +7,7 @@ import com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestkitResource;
 import com.google.protobuf.util.Timestamps;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.runner.OrderWith;
 
 import java.util.UUID;
 

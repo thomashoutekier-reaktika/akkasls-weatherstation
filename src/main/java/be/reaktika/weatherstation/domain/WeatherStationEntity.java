@@ -2,6 +2,7 @@ package be.reaktika.weatherstation.domain;
 
 import be.reaktika.weatherstation.domain.WeatherStationDomain.*;
 import com.akkaserverless.javasdk.EntityId;
+import com.akkaserverless.javasdk.Reply;
 import com.akkaserverless.javasdk.eventsourcedentity.*;
 import com.google.protobuf.Empty;
 import org.slf4j.Logger;
@@ -10,6 +11,12 @@ import org.slf4j.LoggerFactory;
 /** An event sourced entity. */
 @EventSourcedEntity(entityType = "weatherstation")
 public class WeatherStationEntity {
+
+
+    private static final String DOMAIN_MODEL_CONVERTER_SERVICE = "be.reaktika.weatherstation.api.WeatherStationApiService";
+    private static final String DOMAIN_MODEL_CONVERTER_METHOD = "ConvertDomainStateToResponse";
+
+
     @SuppressWarnings("unused")
     private final String entityId;
     private String name = "unknown";
@@ -110,9 +117,9 @@ public class WeatherStationEntity {
     }
 
     @CommandHandler
-    public WeatherStationDomain.StationState getState(GetStationStateCommand command, CommandContext ctx) {
+    public Reply<Empty> getState(GetStationStateCommand command, CommandContext ctx) {
         logger.info("getting state from " + ctx.entityId());
-        return StationState.newBuilder()
+        var state = StationState.newBuilder()
                 .setAverageTempCelciusOverall(this.temp_avg_overall)
                 .setAverageWindspeedOverall(this.windspeed_avg_overall)
                 .setLatitude(this.latitude)
@@ -120,5 +127,9 @@ public class WeatherStationEntity {
                 .setStationName(this.name)
                 .setStationId(this.entityId)
                 .build();
+        logger.info("forwarding state to converter " + state);
+
+        var converter = ctx.serviceCallFactory().lookup(DOMAIN_MODEL_CONVERTER_SERVICE, DOMAIN_MODEL_CONVERTER_METHOD,StationState.class);
+        return Reply.forward(converter.createCall(state));
     }
 }
