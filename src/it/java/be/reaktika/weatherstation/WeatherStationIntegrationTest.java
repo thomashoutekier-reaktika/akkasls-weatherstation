@@ -1,13 +1,13 @@
 package be.reaktika.weatherstation;
 
 import be.reaktika.weatherstation.api.WeatherStationApi.*;
-
 import be.reaktika.weatherstation.api.WeatherStationApiServiceClient;
+import be.reaktika.weatherstation.view.StationByIdViewClient;
+import be.reaktika.weatherstation.view.WeatherstationView;
 import com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestkitResource;
 import com.google.protobuf.util.Timestamps;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.junit.runner.OrderWith;
 
 import java.util.UUID;
 
@@ -28,9 +28,11 @@ public class WeatherStationIntegrationTest {
      * Use the generated gRPC client to call the service through the Akka Serverless proxy.
      */
     private final WeatherStationApiServiceClient client;
+    private final StationByIdViewClient viewClient;
 
     public WeatherStationIntegrationTest() {
         client = WeatherStationApiServiceClient.create(testkit.getGrpcClientSettings(), testkit.getActorSystem());
+        viewClient = StationByIdViewClient.create(testkit.getGrpcClientSettings(), testkit.getActorSystem());
     }
     
     @Test
@@ -46,8 +48,9 @@ public class WeatherStationIntegrationTest {
 
         Thread.sleep(1000);
 
-        var state = client.getDomainState(GetStationStateRequest.newBuilder()
-                    .setStationId(id).build()).toCompletableFuture().get(2, SECONDS);
+        var state = viewClient
+                .getStationState(WeatherstationView.StationByIdRequest.newBuilder()
+                        .setStationId(id).build()).toCompletableFuture().get(2, SECONDS);
 
         System.out.println("received response " + state);
         assertEquals(id,state.getStationId());
@@ -76,12 +79,13 @@ public class WeatherStationIntegrationTest {
 
         Thread.sleep(1000);
 
-        var state = client.getDomainState(GetStationStateRequest.newBuilder()
-                .setStationId(id).build()).toCompletableFuture().get(2, SECONDS);
+        var state = viewClient
+                .getStationState(WeatherstationView.StationByIdRequest.newBuilder()
+                        .setStationId(id).build()).toCompletableFuture().get(2, SECONDS);
         System.out.println("received response " + state);
 
         assertEquals(id,state.getStationId());
-        assertEquals("unknown",state.getStationName());
+        assertEquals("",state.getStationName());
         assertEquals(0, state.getLatitude(), 0.001);
         assertEquals(0, state.getLongitude(),0.001);
         assertEquals(15, state.getAverageTempCelciusOverall(),0.001);
@@ -109,12 +113,13 @@ public class WeatherStationIntegrationTest {
 
         Thread.sleep(1000);
 
-        var state = client.getDomainState(GetStationStateRequest.newBuilder()
-                .setStationId(id).build()).toCompletableFuture().get(2, SECONDS);
+        var state = viewClient
+                .getStationState(WeatherstationView.StationByIdRequest.newBuilder()
+                        .setStationId(id).build()).toCompletableFuture().get(2, SECONDS);
         System.out.println("received response " + state);
 
         assertEquals(id,state.getStationId());
-        assertEquals("unknown",state.getStationName());
+        assertEquals("",state.getStationName());
         assertEquals(0, state.getLatitude(), 0.001);
         assertEquals(0, state.getLongitude(),0.001);
         assertEquals(0, state.getAverageTempCelciusOverall(),0.001);

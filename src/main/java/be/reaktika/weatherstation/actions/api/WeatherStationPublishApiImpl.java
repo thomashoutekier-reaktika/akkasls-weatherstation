@@ -1,9 +1,10 @@
 package be.reaktika.weatherstation.actions.api;
 
-import be.reaktika.weatherstation.api.WeatherStationApi.*;
+import be.reaktika.weatherstation.api.WeatherStationApi.StationRegistrationRequest;
+import be.reaktika.weatherstation.api.WeatherStationApi.StationTemperaturePublishRequest;
+import be.reaktika.weatherstation.api.WeatherStationApi.StationWindspeedPublishRequest;
 import be.reaktika.weatherstation.domain.WeatherStationDomain;
 import com.akkaserverless.javasdk.Reply;
-import com.akkaserverless.javasdk.ServiceCall;
 import com.akkaserverless.javasdk.ServiceCallRef;
 import com.akkaserverless.javasdk.action.Action;
 import com.akkaserverless.javasdk.action.ActionContext;
@@ -60,7 +61,7 @@ public class WeatherStationPublishApiImpl {
 
         return Reply.forward(publishWindCall.createCall(commandBuilder.build()));
     }
-
+/*
     @Handler
     public Reply<StationStateResponse> getDomainState(GetStationStateRequest request, ActionContext ctx) {
         logger.info("getting state from " + request.getStationId() );
@@ -87,5 +88,7 @@ public class WeatherStationPublishApiImpl {
                 .setAverageWindspeedOverall(domainState.getAverageWindspeedOverall())
                 .build());
     }
+
+ */
 
 }

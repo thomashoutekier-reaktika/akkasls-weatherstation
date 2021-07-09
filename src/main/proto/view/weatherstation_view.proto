@@ -1,0 +1,61 @@
+syntax = "proto3";
+
+package be.reaktika.weatherstation.view;
+import "akkaserverless/annotations.proto";
+import "google/api/annotations.proto";
+import "domain/weatherstation_domain.proto";
+
+
+message StationByIdRequest {
+  string station_id = 1;
+}
+
+message WeatherStationStateView {
+  double average_temp_celcius_overall = 1;
+  double average_windspeed_overall = 2;
+  string station_id = 3;
+  double latitude = 4;
+  double longitude = 5;
+  string station_name = 6;
+}
+
+service StationByIdView {
+  rpc ProcessStationRegistered(be.reaktika.weatherstation.domain.StationRegistered) returns (WeatherStationStateView) {
+    option (akkaserverless.method).eventing.in = {
+      event_sourced_entity: "weatherstation"
+    };
+    option(akkaserverless.method).view.update = {
+      table: "weatherstationsView"
+      transform_updates: true
+    };
+  }
+
+  rpc ProcessTemperatureAdded(be.reaktika.weatherstation.domain.TemperaturesCelciusAdded) returns (WeatherStationStateView) {
+    option (akkaserverless.method).eventing.in = {
+      event_sourced_entity: "weatherstation"
+    };
+    option(akkaserverless.method).view.update = {
+      table: "weatherstationsView"
+      transform_updates: true
+    };
+  }
+
+  rpc ProcessWindspeedAdded(be.reaktika.weatherstation.domain.WindspeedsAdded) returns (WeatherStationStateView) {
+    option (akkaserverless.method).eventing.in = {
+      event_sourced_entity: "weatherstation"
+    };
+    option(akkaserverless.method).view.update = {
+      table: "weatherstationsView"
+      transform_updates: true
+    };
+  }
+
+  rpc GetStationState(StationByIdRequest) returns (WeatherStationStateView) {
+    option (akkaserverless.method).view.query = {
+      query: "SELECT average_temp_celcius_overall, average_windspeed_overall, station_id, latitude, longitude, station_name FROM weatherstationsView WHERE station_id = :station_id"
+    };
+    option (google.api.http) = {
+      get: "/weather/station/{station_id}"
+    };
+  }
+}

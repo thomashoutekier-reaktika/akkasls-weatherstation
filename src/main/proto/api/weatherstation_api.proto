@@ -42,6 +42,7 @@ message GetStationStateRequest {
     string station_id = 1;
 }
 
+/*
 message StationStateResponse {
     double average_temp_celcius_overall = 1;
     double average_windspeed_overall = 2;
@@ -51,6 +52,8 @@ message StationStateResponse {
     string station_name = 6;
 
 }
+
+ */
 
 service WeatherStationApiService {
     rpc RegisterStation(StationRegistrationRequest) returns (google.protobuf.Empty) {
@@ -72,12 +75,15 @@ service WeatherStationApiService {
             body: "*"
         };
     }
-
+/*
     rpc GetDomainState(GetStationStateRequest) returns (StationStateResponse) {
+
         option (google.api.http) = {
             get: "/weather/station/{station_id}"
         };
+
     }
 
     rpc ConvertDomainStateToResponse(be.reaktika.weatherstation.domain.StationState) returns (StationStateResponse);
+*/
 }
