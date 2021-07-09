@@ -21,10 +21,6 @@ public class WeatherStationEntity {
     private final String entityId;
     private String name = "unknown";
     private final Logger logger = LoggerFactory.getLogger(WeatherStationEntity.class);
-    private double temp_avg_overall = 0;
-    private double windspeed_avg_overall = 0;
-    private long numberOfWindMeasurements = 0;
-    private long numberOfTempMeasurements = 0;
     private double latitude = 0;
     private double longitude = 0;
 
@@ -40,15 +36,11 @@ public class WeatherStationEntity {
                 .setStationName(this.name)
                 .setLatitude(this.latitude)
                 .setLongitude(this.longitude)
-                .setAverageTempCelciusOverall(this.temp_avg_overall)
-                .setAverageWindspeedOverall(this.windspeed_avg_overall)
                 .build();
     }
 
     @SnapshotHandler
     public void handleSnapshot(WeatherStationState snapshot) {
-        this.temp_avg_overall = snapshot.getAverageTempCelciusOverall();
-        this.windspeed_avg_overall = snapshot.getAverageWindspeedOverall();
         this.latitude = snapshot.getLatitude();
         this.longitude = snapshot.getLongitude();
     }
@@ -103,33 +95,13 @@ public class WeatherStationEntity {
     @EventHandler
     public void temperaturesCelciusAdded(TemperaturesCelciusAdded event) {
         logger.info("temperatures added " + event);
-        var eventAvg = event.getTemperatureList().stream().mapToDouble(Temperature::getTemperatureCelcius).average().orElse(this.temp_avg_overall);
-        this.numberOfTempMeasurements+=1;
-        this.temp_avg_overall = this.temp_avg_overall + (eventAvg - this.temp_avg_overall)/numberOfTempMeasurements;
+
     }
 
     @EventHandler
     public void windspeedsAdded(WindspeedsAdded event) {
         logger.info("windspeeds added " + event);
-        var eventAvg = event.getWindspeedList().stream().mapToDouble(Windspeed::getWindspeedMPerS).average().orElse(this.windspeed_avg_overall);
-        this.numberOfWindMeasurements+=1;
-        this.windspeed_avg_overall = this.windspeed_avg_overall + (eventAvg - this.windspeed_avg_overall)/numberOfWindMeasurements;
+
     }
 
-    @CommandHandler
-    public Reply<Empty> getState(GetStationStateCommand command, CommandContext ctx) {
-        logger.info("getting state from " + ctx.entityId());
-        var state = StationState.newBuilder()
-                .setAverageTempCelciusOverall(this.temp_avg_overall)
-                .setAverageWindspeedOverall(this.windspeed_avg_overall)
-                .setLatitude(this.latitude)
-                .setLongitude(this.longitude)
-                .setStationName(this.name)
-                .setStationId(this.entityId)
-                .build();
-        logger.info("forwarding state to converter " + state);
-
-        var converter = ctx.serviceCallFactory().lookup(DOMAIN_MODEL_CONVERTER_SERVICE, DOMAIN_MODEL_CONVERTER_METHOD,StationState.class);
-        return Reply.forward(converter.createCall(state));
-    }
 }

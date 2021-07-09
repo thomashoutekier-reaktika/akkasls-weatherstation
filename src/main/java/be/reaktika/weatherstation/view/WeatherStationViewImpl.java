@@ -15,8 +15,7 @@ public class WeatherStationViewImpl {
 
     @UpdateHandler
     public WeatherstationView.WeatherStationStateView processStationRegistered(WeatherStationDomain.StationRegistered event, Optional<WeatherstationView.WeatherStationStateView> state) {
-        logger.info("updating view with event " + event + " on state " + state);
-
+        logger.info("processStationRegistered with event " + event + " on state " + state);
         WeatherstationView.WeatherStationStateView.Builder stateBuilder;
         if (state.isPresent()){
             logger.info("updating state");
@@ -35,34 +34,50 @@ public class WeatherStationViewImpl {
 
     @UpdateHandler
     public WeatherstationView.WeatherStationStateView processTemperatureAdded(WeatherStationDomain.TemperaturesCelciusAdded event, Optional<WeatherstationView.WeatherStationStateView> state) {
-        logger.info("updating view with event " + event + " on state " + state);
+        logger.info("processTemperatureAdded with event " + event + " on state " + state);
         WeatherstationView.WeatherStationStateView.Builder stateBuilder;
         if (state.isPresent()){
             logger.info("updating state");
             stateBuilder = WeatherstationView.WeatherStationStateView.newBuilder(state.get());
         }else {
             logger.info("creating new state");
-            stateBuilder = WeatherstationView.WeatherStationStateView.newBuilder().setStationId(event.getStationId());
+            stateBuilder = WeatherstationView.WeatherStationStateView.newBuilder()
+                    .setStationId(event.getStationId())
+                    .setAverageTempCelciusOverall(0.)
+                    .setNumberOfTemperatureMeasurements(0L);
         }
-        var avg = event.getTemperatureList().stream().mapToDouble(WeatherStationDomain.Temperature::getTemperatureCelcius).average().orElse(0);
-        stateBuilder.setAverageTempCelciusOverall(avg);
+        var eventAvg = event.getTemperatureList().stream().mapToDouble(WeatherStationDomain.Temperature::getTemperatureCelcius).average().orElse(0);
+        var oldAvg = state.map(WeatherstationView.WeatherStationStateView::getAverageTempCelciusOverall).orElse(eventAvg);
+        var currentNumber = state.map(WeatherstationView.WeatherStationStateView::getNumberOfTemperatureMeasurements).orElse(0L) + event.getTemperatureList().size();
+        var newAvg = oldAvg + ((eventAvg - oldAvg)/currentNumber);
+
+        stateBuilder.setAverageTempCelciusOverall(newAvg)
+                .setNumberOfTemperatureMeasurements(currentNumber);
         return stateBuilder.build();
     }
 
 
     @UpdateHandler
     public WeatherstationView.WeatherStationStateView processWindspeedAdded(WeatherStationDomain.WindspeedsAdded event, Optional<WeatherstationView.WeatherStationStateView> state) {
-        logger.info("updating view with event " + event + " on state " + state);
+        logger.info("processWindspeedAdded with event " + event + " on state " + state);
         WeatherstationView.WeatherStationStateView.Builder stateBuilder;
         if (state.isPresent()){
-            logger.info("updating state");
+            logger.info("updating state from " + state.get());
             stateBuilder = WeatherstationView.WeatherStationStateView.newBuilder(state.get());
         }else {
             logger.info("creating new state");
-            stateBuilder = WeatherstationView.WeatherStationStateView.newBuilder().setStationId(event.getStationId());
+            stateBuilder = WeatherstationView.WeatherStationStateView.newBuilder()
+                    .setStationId(event.getStationId())
+                    .setAverageWindspeedOverall(0.)
+                    .setNumberOfWindMeasurements(0L);
         }
-        var avg = event.getWindspeedList().stream().mapToDouble(WeatherStationDomain.Windspeed::getWindspeedMPerS).average().orElse(0);
-        stateBuilder.setAverageWindspeedOverall(avg);
+        var eventAvg = event.getWindspeedList().stream().mapToDouble(WeatherStationDomain.Windspeed::getWindspeedMPerS).average().orElse(0);
+        var oldAvg = state.map(WeatherstationView.WeatherStationStateView::getAverageWindspeedOverall).orElse(eventAvg);
+        var currentNumber = state.map(WeatherstationView.WeatherStationStateView::getNumberOfWindMeasurements).orElse(0L) + event.getWindspeedList().size();
+        var newAvg = oldAvg + ((eventAvg - oldAvg)/currentNumber);
+
+        stateBuilder.setAverageWindspeedOverall(newAvg)
+                .setNumberOfWindMeasurements(currentNumber);
         return stateBuilder.build();
     }
 }

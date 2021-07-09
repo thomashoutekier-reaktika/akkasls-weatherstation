@@ -11,12 +11,14 @@ message StationByIdRequest {
 }
 
 message WeatherStationStateView {
-  double average_temp_celcius_overall = 1;
-  double average_windspeed_overall = 2;
-  string station_id = 3;
-  double latitude = 4;
-  double longitude = 5;
-  string station_name = 6;
+  string station_id = 1;
+  double latitude = 2;
+  double longitude = 3;
+  string station_name = 4;
+  double average_temp_celcius_overall = 5;
+  double average_windspeed_overall = 6;
+  int64 numberOfWindMeasurements = 7;
+  int64 numberOfTemperatureMeasurements = 8;
 }
 
 service StationByIdView {
@@ -25,7 +27,7 @@ service StationByIdView {
       event_sourced_entity: "weatherstation"
     };
     option(akkaserverless.method).view.update = {
-      table: "weatherstationsView"
+      table: "weatherstationsOveralAverage"
       transform_updates: true
     };
   }
@@ -35,7 +37,7 @@ service StationByIdView {
       event_sourced_entity: "weatherstation"
     };
     option(akkaserverless.method).view.update = {
-      table: "weatherstationsView"
+      table: "weatherstationsOveralAverage"
       transform_updates: true
     };
   }
@@ -45,14 +47,14 @@ service StationByIdView {
       event_sourced_entity: "weatherstation"
     };
     option(akkaserverless.method).view.update = {
-      table: "weatherstationsView"
+      table: "weatherstationsOveralAverage"
       transform_updates: true
     };
   }
 
   rpc GetStationState(StationByIdRequest) returns (WeatherStationStateView) {
     option (akkaserverless.method).view.query = {
-      query: "SELECT average_temp_celcius_overall, average_windspeed_overall, station_id, latitude, longitude, station_name FROM weatherstationsView WHERE station_id = :station_id"
+      query: "SELECT average_temp_celcius_overall, average_windspeed_overall, numberOfWindMeasurements, numberOfTemperatureMeasurements, station_id, latitude, longitude, station_name FROM weatherstationsOveralAverage WHERE station_id = :station_id"
     };
     option (google.api.http) = {
       get: "/weather/station/{station_id}"

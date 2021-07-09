@@ -90,6 +90,7 @@ public class WeatherStationIntegrationTest {
         assertEquals(0, state.getLongitude(),0.001);
         assertEquals(15, state.getAverageTempCelciusOverall(),0.001);
         assertEquals(0, state.getAverageWindspeedOverall(),0.001);
+        assertEquals(2, state.getNumberOfTemperatureMeasurements());
 
 
     }
@@ -124,5 +125,6 @@ public class WeatherStationIntegrationTest {
         assertEquals(0, state.getLongitude(),0.001);
         assertEquals(0, state.getAverageTempCelciusOverall(),0.001);
         assertEquals(35, state.getAverageWindspeedOverall(),0.001);
+        assertEquals(2, state.getNumberOfWindMeasurements());
     }
 }
