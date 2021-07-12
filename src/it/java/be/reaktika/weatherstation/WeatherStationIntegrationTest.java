@@ -2,7 +2,7 @@ package be.reaktika.weatherstation;
 
 import be.reaktika.weatherstation.api.WeatherStationApi.*;
 import be.reaktika.weatherstation.api.WeatherStationApiServiceClient;
-import be.reaktika.weatherstation.view.StationByIdViewClient;
+import be.reaktika.weatherstation.view.WeatherStationOverallAverageClient;
 import be.reaktika.weatherstation.view.WeatherstationView;
 import com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestkitResource;
 import com.google.protobuf.util.Timestamps;
@@ -28,11 +28,11 @@ public class WeatherStationIntegrationTest {
      * Use the generated gRPC client to call the service through the Akka Serverless proxy.
      */
     private final WeatherStationApiServiceClient client;
-    private final StationByIdViewClient viewClient;
+    private final WeatherStationOverallAverageClient viewClient;
 
     public WeatherStationIntegrationTest() {
         client = WeatherStationApiServiceClient.create(testkit.getGrpcClientSettings(), testkit.getActorSystem());
-        viewClient = StationByIdViewClient.create(testkit.getGrpcClientSettings(), testkit.getActorSystem());
+        viewClient = WeatherStationOverallAverageClient.create(testkit.getGrpcClientSettings(), testkit.getActorSystem());
     }
     
     @Test

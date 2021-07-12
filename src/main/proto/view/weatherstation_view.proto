@@ -10,7 +10,7 @@ message StationByIdRequest {
   string station_id = 1;
 }
 
-message WeatherStationStateView {
+message WeatherStationOverallAverageState {
   string station_id = 1;
   double latitude = 2;
   double longitude = 3;
@@ -21,8 +21,8 @@ message WeatherStationStateView {
   int64 numberOfTemperatureMeasurements = 8;
 }
 
-service StationByIdView {
-  rpc ProcessStationRegistered(be.reaktika.weatherstation.domain.StationRegistered) returns (WeatherStationStateView) {
+service WeatherStationOverallAverage {
+  rpc ProcessStationRegistered(be.reaktika.weatherstation.domain.StationRegistered) returns (WeatherStationOverallAverageState) {
     option (akkaserverless.method).eventing.in = {
       event_sourced_entity: "weatherstation"
     };
@@ -32,7 +32,7 @@ service StationByIdView {
     };
   }
 
-  rpc ProcessTemperatureAdded(be.reaktika.weatherstation.domain.TemperaturesCelciusAdded) returns (WeatherStationStateView) {
+  rpc ProcessTemperatureAdded(be.reaktika.weatherstation.domain.TemperaturesCelciusAdded) returns (WeatherStationOverallAverageState) {
     option (akkaserverless.method).eventing.in = {
       event_sourced_entity: "weatherstation"
     };
@@ -42,7 +42,7 @@ service StationByIdView {
     };
   }
 
-  rpc ProcessWindspeedAdded(be.reaktika.weatherstation.domain.WindspeedsAdded) returns (WeatherStationStateView) {
+  rpc ProcessWindspeedAdded(be.reaktika.weatherstation.domain.WindspeedsAdded) returns (WeatherStationOverallAverageState) {
     option (akkaserverless.method).eventing.in = {
       event_sourced_entity: "weatherstation"
     };
@@ -52,7 +52,7 @@ service StationByIdView {
     };
   }
 
-  rpc GetStationState(StationByIdRequest) returns (WeatherStationStateView) {
+  rpc GetStationState(StationByIdRequest) returns (WeatherStationOverallAverageState) {
     option (akkaserverless.method).view.query = {
       query: "SELECT average_temp_celcius_overall, average_windspeed_overall, numberOfWindMeasurements, numberOfTemperatureMeasurements, station_id, latitude, longitude, station_name FROM weatherstationsOveralAverage WHERE station_id = :station_id"
     };

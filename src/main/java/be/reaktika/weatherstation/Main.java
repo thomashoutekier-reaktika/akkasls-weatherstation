@@ -22,8 +22,8 @@ public final class Main {
                     WeatherStationApi.getDescriptor()
                     )
             .registerView(WeatherStationViewImpl.class,
-                    WeatherstationView.getDescriptor().findServiceByName("StationByIdView"),
-                    "weatherstationByid",
+                    WeatherstationView.getDescriptor().findServiceByName("WeatherStationOverallAverage"),
+                    "weatherstationOverallAverage",
                     WeatherstationView.getDescriptor());
     private static final Logger LOG = LoggerFactory.getLogger(Main.class);
 
