@@ -2,7 +2,6 @@ package be.reaktika.weatherstation.domain;
 
 import be.reaktika.weatherstation.domain.WeatherStationDomain.*;
 import com.akkaserverless.javasdk.EntityId;
-import com.akkaserverless.javasdk.Reply;
 import com.akkaserverless.javasdk.eventsourcedentity.*;
 import com.google.protobuf.Empty;
 import org.slf4j.Logger;
@@ -11,11 +10,6 @@ import org.slf4j.LoggerFactory;
 /** An event sourced entity. */
 @EventSourcedEntity(entityType = "weatherstation")
 public class WeatherStationEntity {
-
-
-    private static final String DOMAIN_MODEL_CONVERTER_SERVICE = "be.reaktika.weatherstation.api.WeatherStationApiService";
-    private static final String DOMAIN_MODEL_CONVERTER_METHOD = "ConvertDomainStateToResponse";
-
 
     @SuppressWarnings("unused")
     private final String entityId;

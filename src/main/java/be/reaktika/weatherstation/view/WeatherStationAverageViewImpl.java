@@ -1,7 +1,7 @@
 package be.reaktika.weatherstation.view;
 
 import be.reaktika.weatherstation.domain.WeatherStationDomain;
-import be.reaktika.weatherstation.view.WeatherstationView.WeatherStationOverallAverageState;
+import be.reaktika.weatherstation.view.WeatherstationAverageView.WeatherStationOverallAverageState;
 import com.akkaserverless.javasdk.view.UpdateHandler;
 import com.akkaserverless.javasdk.view.View;
 import org.slf4j.Logger;
@@ -10,9 +10,9 @@ import org.slf4j.LoggerFactory;
 import java.util.Optional;
 
 @View
-public class WeatherStationViewImpl {
+public class WeatherStationAverageViewImpl {
 
-    private final Logger logger = LoggerFactory.getLogger(WeatherStationViewImpl.class);
+    private final Logger logger = LoggerFactory.getLogger(WeatherStationAverageViewImpl.class);
 
     @UpdateHandler
     public WeatherStationOverallAverageState processStationRegistered(WeatherStationDomain.StationRegistered event, Optional<WeatherStationOverallAverageState> state) {

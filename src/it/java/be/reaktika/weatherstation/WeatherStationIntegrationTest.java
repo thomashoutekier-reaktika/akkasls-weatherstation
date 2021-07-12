@@ -3,7 +3,7 @@ package be.reaktika.weatherstation;
 import be.reaktika.weatherstation.api.WeatherStationApi.*;
 import be.reaktika.weatherstation.api.WeatherStationApiServiceClient;
 import be.reaktika.weatherstation.view.WeatherStationOverallAverageClient;
-import be.reaktika.weatherstation.view.WeatherstationView;
+import be.reaktika.weatherstation.view.WeatherstationAverageView;
 import com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestkitResource;
 import com.google.protobuf.util.Timestamps;
 import org.junit.ClassRule;
@@ -49,7 +49,7 @@ public class WeatherStationIntegrationTest {
         Thread.sleep(1000);
 
         var state = viewClient
-                .getStationState(WeatherstationView.StationByIdRequest.newBuilder()
+                .getStationState(WeatherstationAverageView.StationByIdRequest.newBuilder()
                         .setStationId(id).build()).toCompletableFuture().get(2, SECONDS);
 
         System.out.println("received response " + state);
@@ -80,7 +80,7 @@ public class WeatherStationIntegrationTest {
         Thread.sleep(1000);
 
         var state = viewClient
-                .getStationState(WeatherstationView.StationByIdRequest.newBuilder()
+                .getStationState(WeatherstationAverageView.StationByIdRequest.newBuilder()
                         .setStationId(id).build()).toCompletableFuture().get(2, SECONDS);
         System.out.println("received response " + state);
 
@@ -115,7 +115,7 @@ public class WeatherStationIntegrationTest {
         Thread.sleep(1000);
 
         var state = viewClient
-                .getStationState(WeatherstationView.StationByIdRequest.newBuilder()
+                .getStationState(WeatherstationAverageView.StationByIdRequest.newBuilder()
                         .setStationId(id).build()).toCompletableFuture().get(2, SECONDS);
         System.out.println("received response " + state);
 

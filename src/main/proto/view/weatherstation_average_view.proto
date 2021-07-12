@@ -3,6 +3,7 @@ syntax = "proto3";
 package be.reaktika.weatherstation.view;
 import "akkaserverless/annotations.proto";
 import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
 import "domain/weatherstation_domain.proto";
 
 
@@ -20,6 +21,7 @@ message WeatherStationOverallAverageState {
   int64 numberOfWindMeasurements = 7;
   int64 numberOfTemperatureMeasurements = 8;
 }
+
 
 service WeatherStationOverallAverage {
   rpc ProcessStationRegistered(be.reaktika.weatherstation.domain.StationRegistered) returns (WeatherStationOverallAverageState) {
