@@ -15,6 +15,7 @@ message WeatherStationState {
     double longitude = 4;
 }
 
+//the commands
 message StationRegistrationCommand {
     string station_id = 1 [(akkaserverless.field).entity_key = true];
     string station_name = 2;
@@ -42,8 +43,7 @@ message WindspeedMeasurement {
     float windspeed_m_per_s = 2;
 }
 
-
-
+//the events
 message StationRegistered {
     string station_id = 1;
     string station_name = 2;

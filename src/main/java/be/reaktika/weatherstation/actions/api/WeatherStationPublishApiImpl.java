@@ -61,34 +61,5 @@ public class WeatherStationPublishApiImpl {
 
         return Reply.forward(publishWindCall.createCall(commandBuilder.build()));
     }
-/*
-    @Handler
-    public Reply<StationStateResponse> getDomainState(GetStationStateRequest request, ActionContext ctx) {
-        logger.info("getting state from " + request.getStationId() );
-        ServiceCallRef<WeatherStationDomain.GetStationStateCommand> getStateCall = ctx.serviceCallFactory()
-                                .lookup(WEATHERSTATION_ENTITY_SERVICE_NAME,"GetState", WeatherStationDomain.GetStationStateCommand.class);
-        ServiceCall domainRequest = getStateCall.createCall(WeatherStationDomain.GetStationStateCommand.newBuilder().setStationId(request.getStationId()).build());
-
-        //forward to the converter by means of the message-type
-        logger.info("forwarding getState request to entity");
-
-        return Reply.forward(domainRequest);
-
-    }
-
-    @Handler
-    public Reply<StationStateResponse> convertDomainStateToResponse(WeatherStationDomain.StationState domainState) {
-        logger.info("converting domain data to response");
-        return Reply.message(StationStateResponse.newBuilder()
-                .setStationId(domainState.getStationId())
-                .setStationName(domainState.getStationName())
-                .setLatitude(domainState.getLatitude())
-                .setLongitude(domainState.getLongitude())
-                .setAverageTempCelciusOverall(domainState.getAverageTempCelciusOverall())
-                .setAverageWindspeedOverall(domainState.getAverageWindspeedOverall())
-                .build());
-    }
-
- */
 
 }

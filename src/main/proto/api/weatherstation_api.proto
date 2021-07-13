@@ -3,7 +3,6 @@ syntax = "proto3";
 
 import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
-import "domain/weatherstation_domain.proto";
 import "akkaserverless/annotations.proto";
 import "google/api/annotations.proto";
 
@@ -38,9 +37,6 @@ message WindspeedMeasurement {
     float windspeed_m_per_s = 2;
 }
 
-message GetStationStateRequest {
-    string station_id = 1;
-}
 
 
 service WeatherStationApiService {
