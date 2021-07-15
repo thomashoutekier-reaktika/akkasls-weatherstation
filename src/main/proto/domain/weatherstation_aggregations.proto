@@ -5,6 +5,7 @@ package be.reaktika.weatherstation.domain;
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
 import "akkaserverless/annotations.proto";
+import "google/api/annotations.proto";
 
 option java_outer_classname = "WeatherStationAggregations";
 
@@ -33,16 +34,12 @@ message WeatherStationExtremes {
 }
 
 message TemperatureRecord {
-    string station_id = 1;
-    double measuredTemperature = 2;
-    google.protobuf.Timestamp measurementTime = 3;
-    TemperatureRecord previousRecord = 4;
+    TemperatureMeasurement current = 1;
+    TemperatureMeasurement previousRecord = 2;
 }
 message WindRecord {
-    string station_id = 1;
-    double measuredWindspeed = 2;
-    google.protobuf.Timestamp measurementTime = 3;
-    WindRecord previousRecord = 4;
+    WinspeedMeasurement current = 1;
+    WindRecord previousRecord = 2;
 }
 
 //commands
@@ -80,7 +77,6 @@ service WeatherStationAggregationService {
     };
     rpc RegisterTemperature(RecordTemperatureCommand) returns (google.protobuf.Empty);
     rpc RegisterWindspeed(RecordWindspeedCommand) returns (google.protobuf.Empty);
-    rpc GetAggregation(GetAggregationCommand) returns (Aggregations);
 
 }
 
