@@ -11,7 +11,7 @@
     <properties>
 
     <!-- TODO Update to your own Docker repository or Docker Hub scope -->
-    <dockerImage>my-docker-repo/${project.artifactId}</dockerImage>
+    <dockerImage>thomashoutekier83/${project.artifactId}</dockerImage>
     <dockerTag>${project.version}</dockerTag>
     <mainClass>be.reaktika.weatherstation.Main</mainClass>
 

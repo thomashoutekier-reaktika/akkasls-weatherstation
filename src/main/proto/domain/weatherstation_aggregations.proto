@@ -1,0 +1,87 @@
+syntax = "proto3";
+
+package be.reaktika.weatherstation.domain;
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+import "akkaserverless/annotations.proto";
+
+option java_outer_classname = "WeatherStationAggregations";
+
+
+
+option (akkaserverless.file).value_entity = {
+    name: "Aggregations"
+    entity_type: "aggregations"
+    state: "Aggregations"
+};
+
+
+//state
+enum AggregationType {
+    EXTREMES = 0;
+}
+
+message Aggregations {
+    WeatherStationExtremes extremes = 1;
+}
+
+message WeatherStationExtremes {
+    TemperatureRecord maxTemperature = 1;
+    TemperatureRecord minTemperature = 2;
+    WindRecord windspeed = 3;
+}
+
+message TemperatureRecord {
+    string station_id = 1;
+    double measuredTemperature = 2;
+    google.protobuf.Timestamp measurementTime = 3;
+    TemperatureRecord previousRecord = 4;
+}
+message WindRecord {
+    string station_id = 1;
+    double measuredWindspeed = 2;
+    google.protobuf.Timestamp measurementTime = 3;
+    WindRecord previousRecord = 4;
+}
+
+//commands
+message RecordTemperatureCommand {
+    AggregationType type = 1  [(akkaserverless.field).entity_key = true];
+    repeated TemperatureMeasurement measurements = 2;
+}
+
+message TemperatureMeasurement {
+    string station_id = 1;
+    double measuredTemperature = 2;
+    google.protobuf.Timestamp measurementTime = 3;
+}
+
+message RecordWindspeedCommand {
+    AggregationType type = 1  [(akkaserverless.field).entity_key = true];
+    repeated WinspeedMeasurement measurements = 2;
+}
+
+message WinspeedMeasurement {
+    string station_id = 1;
+    double measuredWindspeed = 2;
+    google.protobuf.Timestamp measurementTime = 3;
+}
+
+message GetAggregationCommand{
+    AggregationType type = 1  [(akkaserverless.field).entity_key = true];
+}
+
+
+service WeatherStationAggregationService {
+    option (akkaserverless.service) = {
+        type : SERVICE_TYPE_ENTITY
+        component : ".domain.Aggregations"
+    };
+    rpc RegisterTemperature(RecordTemperatureCommand) returns (google.protobuf.Empty);
+    rpc RegisterWindspeed(RecordWindspeedCommand) returns (google.protobuf.Empty);
+    rpc GetAggregation(GetAggregationCommand) returns (Aggregations);
+
+}
+
+

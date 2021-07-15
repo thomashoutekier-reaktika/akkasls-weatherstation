@@ -3,7 +3,6 @@ syntax = "proto3";
 package be.reaktika.weatherstation.view;
 import "akkaserverless/annotations.proto";
 import "google/api/annotations.proto";
-import "google/protobuf/timestamp.proto";
 import "domain/weatherstation_domain.proto";
 
 

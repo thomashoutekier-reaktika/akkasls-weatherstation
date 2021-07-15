@@ -1,7 +1,10 @@
 package be.reaktika.weatherstation.domain;
 
+import com.akkaserverless.javasdk.ServiceCallFactory;
+import com.akkaserverless.javasdk.ServiceCallRef;
 import com.akkaserverless.javasdk.eventsourcedentity.CommandContext;
 import com.google.protobuf.Timestamp;
+import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
 
@@ -10,12 +13,24 @@ public class WeatherStationTest {
     private String entityId = "entityId1";
     private WeatherStationEntity entity;
     private CommandContext context = Mockito.mock(CommandContext.class);
-    
+    private ServiceCallFactory factoryMock = Mockito.mock(ServiceCallFactory.class);
+    private ServiceCallRef<WeatherStationAggregations.RecordTemperatureCommand> tempAggregationMock = Mockito.mock(ServiceCallRef.class);
+    private ServiceCallRef<WeatherStationAggregations.RecordWindspeedCommand> windspeedAggregationMock = Mockito.mock(ServiceCallRef.class);
+
     private class MockedContextFailure extends RuntimeException {};
+
+    @Before
+    public void init(){
+        Mockito.when(context.serviceCallFactory()).thenReturn(factoryMock);
+        Mockito.when(factoryMock.lookup(Mockito.anyString(),Mockito.anyString(), Mockito.eq(WeatherStationAggregations.RecordTemperatureCommand.class)))
+                .thenReturn(tempAggregationMock);
+        Mockito.when(factoryMock.lookup(Mockito.anyString(),Mockito.anyString(), Mockito.eq(WeatherStationAggregations.RecordWindspeedCommand.class)))
+                .thenReturn(windspeedAggregationMock);
+    }
     
     @Test
     public void registerStationTest() {
-        entity = new WeatherStationEntity(entityId);
+        entity = new WeatherStationEntity(entityId, context);
 
         entity.registerStation(WeatherStationDomain.StationRegistrationCommand.newBuilder()
                 .setStationId("stationId")
@@ -35,7 +50,7 @@ public class WeatherStationTest {
     
     @Test
     public void publishTemperatureReportTest() {
-        entity = new WeatherStationEntity(entityId);
+        entity = new WeatherStationEntity(entityId, context);
 
         var command = WeatherStationDomain.StationTemperatureCommand.newBuilder()
                 .setStationId("stationId")
@@ -56,12 +71,13 @@ public class WeatherStationTest {
                 .build();
 
         Mockito.verify(context).emit(event);
+        Mockito.verify(tempAggregationMock).createCall(Mockito.any(WeatherStationAggregations.RecordTemperatureCommand.class));
 
     }
     
     @Test
     public void publishWindspeedReportTest() {
-        entity = new WeatherStationEntity(entityId);
+        entity = new WeatherStationEntity(entityId, context);
 
         entity.publishWindspeedReport(WeatherStationDomain.StationWindspeedCommand.newBuilder()
                 .setStationId("stationId")
@@ -84,5 +100,6 @@ public class WeatherStationTest {
                 .build();
         
         Mockito.verify(context).emit(event);
+        Mockito.verify(windspeedAggregationMock).createCall(Mockito.any(WeatherStationAggregations.RecordWindspeedCommand.class));
     }
 }
