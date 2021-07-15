@@ -10,13 +10,13 @@ import "google/api/annotations.proto";
 option java_outer_classname = "WeatherStationAggregations";
 
 
-
+/*
 option (akkaserverless.file).value_entity = {
     name: "Aggregations"
     entity_type: "aggregations"
     state: "Aggregations"
 };
-
+*/
 
 //state
 enum AggregationType {

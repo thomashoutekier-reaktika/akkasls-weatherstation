@@ -6,55 +6,28 @@ import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
 import "domain/weatherstation_domain.proto";
+import "domain/weatherstation_aggregations.proto";
 
-
-message WeatherStationRecords {
-  TemperatureRecord maxTemperature = 1;
-  TemperatureRecord minTemperature = 2;
-  WindRecord windspeed = 3;
-}
-
-message TemperatureRecord {
-  string station_id = 1;
-  double measuredTemperature = 2;
-  google.protobuf.Timestamp measurementTime = 3;
-  TemperatureRecord previousRecord = 4;
-}
-message WindRecord {
-  string station_id = 1;
-  double measuredWindspeed = 2;
-  google.protobuf.Timestamp measurementTime = 3;
-  WindRecord previousRecord = 4;
-}
 
 service WeatherStationExtremes {
 
-  rpc ProcessTemperatureAdded(be.reaktika.weatherstation.domain.TemperaturesCelciusAdded) returns (WeatherStationRecords) {
+  rpc UpdateAggregations(be.reaktika.weatherstation.domain.Aggregations) returns (be.reaktika.weatherstation.domain.Aggregations) {
     option (akkaserverless.method).eventing.in = {
-      event_sourced_entity: "weatherstation"
+      value_entity: "aggregations"
     };
     option(akkaserverless.method).view.update = {
-      table: "weatherRecords"
+      table: "aggregations_view"
       transform_updates: true
     };
   }
 
-  rpc ProcessWindspeedAdded(be.reaktika.weatherstation.domain.WindspeedsAdded) returns (WeatherStationRecords) {
-    option (akkaserverless.method).eventing.in = {
-      event_sourced_entity: "weatherstation"
-    };
-    option(akkaserverless.method).view.update = {
-      table: "weatherRecords"
-      transform_updates: true
-    };
-  }
 
-  rpc GetRecords(google.protobuf.Empty) returns (stream WeatherStationRecords) {
+  rpc GetAggregations(google.protobuf.Empty) returns (stream be.reaktika.weatherstation.domain.Aggregations) {
     option (akkaserverless.method).view.query = {
-      query: "SELECT * from weatherRecords"
+      query: "SELECT * from aggregations_view"
     };
     option (google.api.http) = {
-      get: "/weather/records"
+      get: "/weather/aggregations"
     };
   }
 }
