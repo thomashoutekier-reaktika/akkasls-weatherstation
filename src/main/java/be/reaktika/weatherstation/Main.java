@@ -1,6 +1,7 @@
 package be.reaktika.weatherstation;
 
 import be.reaktika.weatherstation.actions.GeoCodingPublishAction;
+import be.reaktika.weatherstation.actions.WeatherStationDataPublishAction;
 import be.reaktika.weatherstation.actions.api.WeatherStationPublishApiImpl;
 import be.reaktika.weatherstation.api.WeatherStationApi;
 import be.reaktika.weatherstation.domain.*;
@@ -33,6 +34,9 @@ public final class Main {
             .registerAction(GeoCodingPublishAction.class,
                     WeatherstationGeocodingPublishing.getDescriptor().findServiceByName("GeoCodingPublishService"),
                     WeatherstationGeocodingPublishing.getDescriptor())
+            .registerAction(WeatherStationDataPublishAction.class,
+                    WeatherStationPublish.getDescriptor().findServiceByName("WeatherStationPublishService"),
+                    WeatherStationPublish.getDescriptor())
             .registerView(WeatherStationAverageViewImpl.class,
                     WeatherstationAverageView.getDescriptor().findServiceByName("WeatherStationOverallAverage"),
                     "weatherstationOverallAverage",
