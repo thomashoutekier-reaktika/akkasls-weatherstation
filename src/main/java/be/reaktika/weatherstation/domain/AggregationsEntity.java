@@ -14,13 +14,13 @@ import java.util.Comparator;
 import java.util.stream.Collectors;
 
 @ValueEntity(entityType = "aggregations")
-public class Aggregations {
+public class AggregationsEntity {
 
-    private final static Logger logger = LoggerFactory.getLogger(Aggregations.class);
+    private final static Logger logger = LoggerFactory.getLogger(AggregationsEntity.class);
     private final AggregationType type;
 
 
-    public Aggregations(@EntityId String type) {
+    public AggregationsEntity(@EntityId String type) {
         this.type = AggregationType.valueOf(type);
     }
 
@@ -64,7 +64,7 @@ public class Aggregations {
                     .setPreviousRecord(previousMinRecord.getCurrent()));
         }
         if(lowestInEvent.getMeasuredTemperature() < previousMinRecord.getCurrent().getMeasuredTemperature()){
-            logger.info("low temperature record is bnroken");
+            logger.info("low temperature record is broken");
             newExtremesBuilder.setMinTemperature(TemperatureRecord.newBuilder()
                     .setCurrent(lowestInEvent)
                     .setPreviousRecord(previousMinRecord.getCurrent()));

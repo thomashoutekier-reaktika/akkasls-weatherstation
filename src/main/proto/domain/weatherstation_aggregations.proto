@@ -9,18 +9,10 @@ import "google/api/annotations.proto";
 
 option java_outer_classname = "WeatherStationAggregations";
 
-
-/*
-option (akkaserverless.file).value_entity = {
-    name: "Aggregations"
-    entity_type: "aggregations"
-    state: "Aggregations"
-};
-*/
-
 //state
 enum AggregationType {
     EXTREMES = 0;
+    COUNTRY = 1;
 }
 
 message Aggregations {
@@ -77,7 +69,6 @@ service WeatherStationAggregationService {
     };
     rpc RegisterTemperature(RecordTemperatureCommand) returns (google.protobuf.Empty);
     rpc RegisterWindspeed(RecordWindspeedCommand) returns (google.protobuf.Empty);
-
 }
 
 

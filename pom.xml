@@ -4,7 +4,7 @@
 
   <groupId>be.reaktika</groupId>
   <artifactId>reactive-weather</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <version>1.5-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>reactive-weather</name>
@@ -22,6 +22,7 @@
     <akka-grpc.version>1.1.1</akka-grpc.version>
     <akka-streams.version>2.6.14</akka-streams.version>
     <scala.binary.version>2.13</scala.binary.version>
+    <jackson-version>2.9.7</jackson-version>
   </properties>
 
   <build>
@@ -153,6 +154,11 @@
                   <arg>/maven/${project.build.finalName}.jar</arg>
                 </entryPoint>
               </build>
+              <run>
+                <env>
+                  <OPENCAGE_API_KEY>aee076fdf67c4574b9bb1bcc431d340c</OPENCAGE_API_KEY>
+                </env>
+              </run>
             </image>
           </images>
         </configuration>
@@ -358,6 +364,27 @@
     <dependency>
       <groupId>com.typesafe.akka</groupId>
       <artifactId>akka-stream_${scala.binary.version}</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.byteowls</groupId>
+      <artifactId>jopencage</artifactId>
+      <version>1.4.0</version>
+    </dependency>
+    <!--opencage dependencies-->
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-core</artifactId>
+      <version>${jackson-version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>${jackson-version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-annotations</artifactId>
+      <version>${jackson-version}</version>
     </dependency>
     <dependency>
       <groupId>com.akkaserverless</groupId>

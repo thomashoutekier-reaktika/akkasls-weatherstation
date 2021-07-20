@@ -1,5 +1,6 @@
 package be.reaktika.weatherstation.domain;
 
+import be.reaktika.weatherstation.ports.geocoding.WeatherstationGeocoding;
 import com.akkaserverless.javasdk.ServiceCallFactory;
 import com.akkaserverless.javasdk.ServiceCallRef;
 import com.akkaserverless.javasdk.eventsourcedentity.CommandContext;
@@ -16,6 +17,11 @@ public class WeatherStationTest {
     private ServiceCallFactory factoryMock = Mockito.mock(ServiceCallFactory.class);
     private ServiceCallRef<WeatherStationAggregations.RecordTemperatureCommand> tempAggregationMock = Mockito.mock(ServiceCallRef.class);
     private ServiceCallRef<WeatherStationAggregations.RecordWindspeedCommand> windspeedAggregationMock = Mockito.mock(ServiceCallRef.class);
+    private final ServiceCallRef<WeatherstationGeocoding.RegisterStationPerCountryCommand> registerStationPerCountry = Mockito.mock(ServiceCallRef.class);
+    private final ServiceCallRef<WeatherstationGeocoding.RegisterTemperaturesPerCountryCommand> registerTemperaturePerCountry = Mockito.mock(ServiceCallRef.class);
+    private final ServiceCallRef<WeatherstationGeocoding.RegisterWindspeedsPerCountryCommand> registerWindspeedPerCountry = Mockito.mock(ServiceCallRef.class);
+
+
 
     private class MockedContextFailure extends RuntimeException {};
 
@@ -26,8 +32,14 @@ public class WeatherStationTest {
                 .thenReturn(tempAggregationMock);
         Mockito.when(factoryMock.lookup(Mockito.anyString(),Mockito.anyString(), Mockito.eq(WeatherStationAggregations.RecordWindspeedCommand.class)))
                 .thenReturn(windspeedAggregationMock);
+        Mockito.when(factoryMock.lookup(Mockito.anyString(),Mockito.anyString(), Mockito.eq(WeatherstationGeocoding.RegisterStationPerCountryCommand.class)))
+                .thenReturn(registerStationPerCountry);
+        Mockito.when(factoryMock.lookup(Mockito.anyString(),Mockito.anyString(), Mockito.eq(WeatherstationGeocoding.RegisterTemperaturesPerCountryCommand.class)))
+                .thenReturn(registerTemperaturePerCountry);
+        Mockito.when(factoryMock.lookup(Mockito.anyString(),Mockito.anyString(), Mockito.eq(WeatherstationGeocoding.RegisterWindspeedsPerCountryCommand.class)))
+                .thenReturn(registerWindspeedPerCountry);
     }
-    
+
     @Test
     public void registerStationTest() {
         entity = new WeatherStationEntity(entityId, context);

@@ -1,6 +1,7 @@
 package be.reaktika.weatherstation.domain;
 
 import be.reaktika.weatherstation.domain.WeatherStationDomain.*;
+import be.reaktika.weatherstation.ports.geocoding.WeatherstationGeocoding;
 import com.akkaserverless.javasdk.*;
 import com.akkaserverless.javasdk.eventsourcedentity.*;
 import com.google.protobuf.Empty;
@@ -20,6 +21,9 @@ public class WeatherStationEntity {
 
     private final ServiceCallRef<WeatherStationAggregations.RecordTemperatureCommand> temperatureAggregations;
     private final ServiceCallRef<WeatherStationAggregations.RecordWindspeedCommand> windspeedAggregations;
+    private final ServiceCallRef<WeatherstationGeocoding.RegisterStationPerCountryCommand> registerStationPerCountry;
+    private final ServiceCallRef<WeatherstationGeocoding.RegisterTemperaturesPerCountryCommand> registerTemperaturePerCountry;
+    private final ServiceCallRef<WeatherstationGeocoding.RegisterWindspeedsPerCountryCommand> registerWindspeedPerCountry;
 
     public WeatherStationEntity(@EntityId String entityId, Context ctx) {
         this.entityId = entityId;
@@ -31,6 +35,18 @@ public class WeatherStationEntity {
                 .lookup("be.reaktika.weatherstation.domain.WeatherStationAggregationService",
                         "RegisterWindspeed",
                         WeatherStationAggregations.RecordWindspeedCommand.class);
+        this.registerStationPerCountry = ctx.serviceCallFactory()
+                .lookup("be.reaktika.weatherstation.ports.geocoding.GeoCodingEntityService",
+                        "StationRegistered",
+                        WeatherstationGeocoding.RegisterStationPerCountryCommand.class);
+        this.registerTemperaturePerCountry = ctx.serviceCallFactory()
+                .lookup("be.reaktika.weatherstation.ports.geocoding.GeoCodingEntityService",
+                        "ProcessTemperatureAdded",
+                        WeatherstationGeocoding.RegisterTemperaturesPerCountryCommand.class);
+        this.registerWindspeedPerCountry = ctx.serviceCallFactory()
+                .lookup("be.reaktika.weatherstation.ports.geocoding.GeoCodingEntityService",
+                        "ProcessWindspeedAdded",
+                        WeatherstationGeocoding.RegisterWindspeedsPerCountryCommand.class);
     }
 
     @Snapshot
@@ -51,15 +67,24 @@ public class WeatherStationEntity {
     }
 
     @CommandHandler
-    protected Empty registerStation(StationRegistrationCommand command, CommandContext ctx) {
+    protected Reply<Empty> registerStation(StationRegistrationCommand command, CommandContext ctx) {
         logger.info("registering station " + command);
         var event = StationRegistered.newBuilder()
                 .setStationName(command.getStationName())
                 .setStationId(command.getStationId())
                 .setLongitude(command.getLongitude())
                 .setLatitude(command.getLatitude()).build();
+
+        logger.info("registering station per country");
+        var countryRegistrationBuilder = WeatherstationGeocoding.RegisterStationPerCountryCommand.newBuilder();
+        countryRegistrationBuilder.setAggType(WeatherStationAggregations.AggregationType.COUNTRY.toString())
+                .setStation(StationRegistered.newBuilder()
+                        .setStationId(command.getStationId())
+                        .setLatitude(command.getLatitude())
+                        .setLongitude(command.getLongitude()).build());
         ctx.emit(event);
-        return Empty.getDefaultInstance();
+        return Reply.message(Empty.getDefaultInstance())
+                .addEffects(Effect.of(registerStationPerCountry.createCall(countryRegistrationBuilder.build())));
     }
 
     @CommandHandler
@@ -75,17 +100,27 @@ public class WeatherStationEntity {
         logger.info("converting command to aggregation command");
         var aggregationCommandBuilder = WeatherStationAggregations.RecordTemperatureCommand.newBuilder()
                 .setType(WeatherStationAggregations.AggregationType.EXTREMES);
+
         command.getTempMeasurementsList().stream().map(m ->
                 WeatherStationAggregations.TemperatureMeasurement.newBuilder()
                         .setStationId(command.getStationId())
                         .setMeasuredTemperature(m.getTemperatureCelcius())
                         .setMeasurementTime(m.getMeasurementTime()))
-                .forEach(aggregationCommandBuilder::addMeasurements);
+                .forEach(m -> {
+                    aggregationCommandBuilder.addMeasurements(m);
+
+                });
+        var perCountryBuilder = WeatherstationGeocoding.RegisterTemperaturesPerCountryCommand.newBuilder();
+        perCountryBuilder.setStationId(command.getStationId());
+        command.getTempMeasurementsList().forEach(perCountryBuilder::addTempMeasurements);
+        perCountryBuilder.setAggType(WeatherStationAggregations.AggregationType.COUNTRY.toString());
+
         logger.info("emitting event");
         ctx.emit(eventBuilder.build());
-        logger.info("triggering effect");
+        logger.info("triggering effects");
         return Reply.message(Empty.getDefaultInstance())
-                .addEffects(Effect.of(temperatureAggregations.createCall(aggregationCommandBuilder.build())));
+                .addEffects(Effect.of(temperatureAggregations.createCall(aggregationCommandBuilder.build())))
+                .addEffects(Effect.of(registerTemperaturePerCountry.createCall(perCountryBuilder.build())));
 
     }
 
@@ -107,8 +142,12 @@ public class WeatherStationEntity {
                         .setMeasuredWindspeed(m.getWindspeedMPerS())
                         .setMeasurementTime(m.getMeasurementTime()))
                         .forEach(aggregationCommandBuilder::addMeasurements);
+
         logger.info("emitting event");
         ctx.emit(eventBuilder.build());
+
+
+
 
         return Reply.message(Empty.getDefaultInstance())
                 .addEffects(Effect.of(windspeedAggregations.createCall(aggregationCommandBuilder.build())));
