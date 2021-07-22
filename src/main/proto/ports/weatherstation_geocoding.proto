@@ -1,7 +1,8 @@
 syntax = "proto3";
 
 import "domain/weatherstation_domain.proto";
-import "domain/weatherstation_aggregations.proto";
+import "domain/weatherstation_extremes.proto";
+import "domain/weatherstation_publish.proto";
 import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 import "akkaserverless/annotations.proto";
@@ -16,24 +17,6 @@ message GeoCodingState {
 }
 
 
-//Commands
-message RegisterStationPerCountryCommand {
-  string aggType = 1  [(akkaserverless.field).entity_key = true];
-  be.reaktika.weatherstation.domain.StationRegistered station = 2;
-}
-
-message RegisterTemperaturesPerCountryCommand {
-  string aggType = 1  [(akkaserverless.field).entity_key = true];
-  string station_id = 2;
-  repeated be.reaktika.weatherstation.domain.TemperatureMeasurements temp_measurements = 3;
-}
-
-message RegisterWindspeedsPerCountryCommand {
-  string aggType = 1  [(akkaserverless.field).entity_key = true];
-  string station_id = 2;
-  repeated be.reaktika.weatherstation.domain.WindspeedMeasurement windspeed_measurements = 3;
-}
-
 
 //events
 message CountryMeasurements {
@@ -45,18 +28,6 @@ message CountryMeasurements {
 
 
 service GeoCodingEntityService {
-  rpc StationRegistered(RegisterStationPerCountryCommand) returns (google.protobuf.Empty) {
-
-
-
-  }
-
-  rpc ProcessTemperatureAdded(RegisterTemperaturesPerCountryCommand) returns (google.protobuf.Empty) {
-
-  }
-
-  rpc ProcessWindspeedAdded(RegisterWindspeedsPerCountryCommand) returns (google.protobuf.Empty) {
-
-  }
+  rpc RegisterData(be.reaktika.weatherstation.domain.AddToAggregationCommand) returns (google.protobuf.Empty);
 
 }

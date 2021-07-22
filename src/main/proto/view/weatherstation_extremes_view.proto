@@ -6,14 +6,14 @@ import "google/api/annotations.proto";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
 import "domain/weatherstation_domain.proto";
-import "domain/weatherstation_aggregations.proto";
+import "domain/weatherstation_extremes.proto";
 
 
 service WeatherStationExtremes {
 
   rpc UpdateAggregations(be.reaktika.weatherstation.domain.Aggregations) returns (be.reaktika.weatherstation.domain.Aggregations) {
     option (akkaserverless.method).eventing.in = {
-      value_entity: "aggregations"
+      value_entity: "weatherstationextremes"
     };
     option(akkaserverless.method).view.update = {
       table: "aggregations_view"

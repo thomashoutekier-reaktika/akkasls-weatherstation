@@ -15,11 +15,7 @@ public class WeatherStationTest {
     private WeatherStationEntity entity;
     private CommandContext context = Mockito.mock(CommandContext.class);
     private ServiceCallFactory factoryMock = Mockito.mock(ServiceCallFactory.class);
-    private ServiceCallRef<WeatherStationAggregations.RecordTemperatureCommand> tempAggregationMock = Mockito.mock(ServiceCallRef.class);
-    private ServiceCallRef<WeatherStationAggregations.RecordWindspeedCommand> windspeedAggregationMock = Mockito.mock(ServiceCallRef.class);
-    private final ServiceCallRef<WeatherstationGeocoding.RegisterStationPerCountryCommand> registerStationPerCountry = Mockito.mock(ServiceCallRef.class);
-    private final ServiceCallRef<WeatherstationGeocoding.RegisterTemperaturesPerCountryCommand> registerTemperaturePerCountry = Mockito.mock(ServiceCallRef.class);
-    private final ServiceCallRef<WeatherstationGeocoding.RegisterWindspeedsPerCountryCommand> registerWindspeedPerCountry = Mockito.mock(ServiceCallRef.class);
+
 
 
 
@@ -28,16 +24,7 @@ public class WeatherStationTest {
     @Before
     public void init(){
         Mockito.when(context.serviceCallFactory()).thenReturn(factoryMock);
-        Mockito.when(factoryMock.lookup(Mockito.anyString(),Mockito.anyString(), Mockito.eq(WeatherStationAggregations.RecordTemperatureCommand.class)))
-                .thenReturn(tempAggregationMock);
-        Mockito.when(factoryMock.lookup(Mockito.anyString(),Mockito.anyString(), Mockito.eq(WeatherStationAggregations.RecordWindspeedCommand.class)))
-                .thenReturn(windspeedAggregationMock);
-        Mockito.when(factoryMock.lookup(Mockito.anyString(),Mockito.anyString(), Mockito.eq(WeatherstationGeocoding.RegisterStationPerCountryCommand.class)))
-                .thenReturn(registerStationPerCountry);
-        Mockito.when(factoryMock.lookup(Mockito.anyString(),Mockito.anyString(), Mockito.eq(WeatherstationGeocoding.RegisterTemperaturesPerCountryCommand.class)))
-                .thenReturn(registerTemperaturePerCountry);
-        Mockito.when(factoryMock.lookup(Mockito.anyString(),Mockito.anyString(), Mockito.eq(WeatherstationGeocoding.RegisterWindspeedsPerCountryCommand.class)))
-                .thenReturn(registerWindspeedPerCountry);
+
     }
 
     @Test
@@ -83,7 +70,6 @@ public class WeatherStationTest {
                 .build();
 
         Mockito.verify(context).emit(event);
-        Mockito.verify(tempAggregationMock).createCall(Mockito.any(WeatherStationAggregations.RecordTemperatureCommand.class));
 
     }
     
@@ -112,6 +98,5 @@ public class WeatherStationTest {
                 .build();
         
         Mockito.verify(context).emit(event);
-        Mockito.verify(windspeedAggregationMock).createCall(Mockito.any(WeatherStationAggregations.RecordWindspeedCommand.class));
     }
 }

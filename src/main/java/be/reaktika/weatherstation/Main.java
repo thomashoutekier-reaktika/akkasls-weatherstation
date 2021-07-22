@@ -1,10 +1,13 @@
 package be.reaktika.weatherstation;
 
 import be.reaktika.weatherstation.actions.GeoCodingPublishAction;
+import be.reaktika.weatherstation.actions.WeatherStationDataConsumeAction;
 import be.reaktika.weatherstation.actions.WeatherStationDataPublishAction;
 import be.reaktika.weatherstation.actions.api.WeatherStationPublishApiImpl;
 import be.reaktika.weatherstation.api.WeatherStationApi;
 import be.reaktika.weatherstation.domain.*;
+import be.reaktika.weatherstation.domain.aggregations.ExtremesEntity;
+import be.reaktika.weatherstation.domain.aggregations.GeoCodingEntity;
 import be.reaktika.weatherstation.ports.geocoding.WeatherstationGeocoding;
 import be.reaktika.weatherstation.ports.geocoding.publishing.WeatherstationGeocodingPublishing;
 import be.reaktika.weatherstation.view.WeatherStationAggregationsView;
@@ -22,15 +25,18 @@ public final class Main {
             .registerEventSourcedEntity(WeatherStationEntity.class,
                     WeatherStationDomain.getDescriptor().findServiceByName("WeatherStationEntityService"),
                     WeatherStationDomain.getDescriptor())
-            .registerValueEntity(AggregationsEntity.class,
-                    WeatherStationAggregations.getDescriptor().findServiceByName("WeatherStationAggregationService"),
-                    WeatherStationAggregations.getDescriptor())
+            .registerValueEntity(ExtremesEntity.class,
+                    WeatherStationExtremesAggregation.getDescriptor().findServiceByName("WeatherStationAggregationService"),
+                    WeatherStationExtremesAggregation.getDescriptor())
             .registerValueEntity(GeoCodingEntity.class,
                     WeatherstationGeocoding.getDescriptor().findServiceByName("GeoCodingEntityService"),
                     WeatherstationGeocoding.getDescriptor())
             .registerAction(WeatherStationPublishApiImpl.class,
                     WeatherStationApi.getDescriptor().findServiceByName("WeatherStationApiService"),
                     WeatherStationApi.getDescriptor())
+            .registerAction(WeatherStationDataConsumeAction.class,
+                    WeatherStationDataConsume.getDescriptor().findServiceByName("WeatherStationConsumeService"),
+                    WeatherStationDataConsume.getDescriptor())
             .registerAction(GeoCodingPublishAction.class,
                     WeatherstationGeocodingPublishing.getDescriptor().findServiceByName("GeoCodingPublishService"),
                     WeatherstationGeocodingPublishing.getDescriptor())

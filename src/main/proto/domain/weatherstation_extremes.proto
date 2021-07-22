@@ -4,10 +4,11 @@ package be.reaktika.weatherstation.domain;
 
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
+import "domain/weatherstation_publish.proto";
 import "akkaserverless/annotations.proto";
 import "google/api/annotations.proto";
 
-option java_outer_classname = "WeatherStationAggregations";
+option java_outer_classname = "WeatherStationExtremesAggregation";
 
 //state
 enum AggregationType {
@@ -29,16 +30,6 @@ message TemperatureRecord {
     TemperatureMeasurement current = 1;
     TemperatureMeasurement previousRecord = 2;
 }
-message WindRecord {
-    WinspeedMeasurement current = 1;
-    WindRecord previousRecord = 2;
-}
-
-//commands
-message RecordTemperatureCommand {
-    AggregationType type = 1  [(akkaserverless.field).entity_key = true];
-    repeated TemperatureMeasurement measurements = 2;
-}
 
 message TemperatureMeasurement {
     string station_id = 1;
@@ -46,9 +37,9 @@ message TemperatureMeasurement {
     google.protobuf.Timestamp measurementTime = 3;
 }
 
-message RecordWindspeedCommand {
-    AggregationType type = 1  [(akkaserverless.field).entity_key = true];
-    repeated WinspeedMeasurement measurements = 2;
+message WindRecord {
+    WinspeedMeasurement current = 1;
+    WindRecord previousRecord = 2;
 }
 
 message WinspeedMeasurement {
@@ -57,8 +48,10 @@ message WinspeedMeasurement {
     google.protobuf.Timestamp measurementTime = 3;
 }
 
-message GetAggregationCommand{
+//commands
+message AddToAggregationCommand {
     AggregationType type = 1  [(akkaserverless.field).entity_key = true];
+    WeatherStationData weatherdata = 2;
 }
 
 
@@ -67,8 +60,7 @@ service WeatherStationAggregationService {
         type : SERVICE_TYPE_ENTITY
         component : ".domain.Aggregations"
     };
-    rpc RegisterTemperature(RecordTemperatureCommand) returns (google.protobuf.Empty);
-    rpc RegisterWindspeed(RecordWindspeedCommand) returns (google.protobuf.Empty);
+    rpc RegisterData(AddToAggregationCommand) returns (google.protobuf.Empty);
 }
 
 

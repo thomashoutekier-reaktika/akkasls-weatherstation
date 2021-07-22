@@ -1,5 +1,7 @@
-package be.reaktika.weatherstation.domain;
+package be.reaktika.weatherstation.domain.aggregations;
 
+import be.reaktika.weatherstation.domain.WeatherStationExtremesAggregation;
+import be.reaktika.weatherstation.domain.WeatherStationPublish;
 import be.reaktika.weatherstation.ports.geocoding.WeatherstationGeocoding;
 import com.akkaserverless.javasdk.*;
 import com.akkaserverless.javasdk.valueentity.CommandContext;
@@ -22,7 +24,7 @@ import org.slf4j.LoggerFactory;
 public class GeoCodingEntity {
 
     private static final Logger logger = LoggerFactory.getLogger(GeoCodingEntity.class);
-    private final WeatherStationAggregations.AggregationType type;
+    private final WeatherStationExtremesAggregation.AggregationType type;
     private final String api_key;
     private final JOpenCageGeocoder geocoder;
 
@@ -30,7 +32,7 @@ public class GeoCodingEntity {
 
     public GeoCodingEntity(@EntityId String type, Context ctx){
         Config config = ConfigFactory.load();
-        this.type = WeatherStationAggregations.AggregationType.valueOf(type);
+        this.type = WeatherStationExtremesAggregation.AggregationType.valueOf(type);
         logger.info("creating GeoCodingEntity with env " + System.getenv("OPENCAGE_API_KEY"));
         this.api_key = config.getString("reactiveweather.geocode.opencage.apikey");
         logger.info("key " + api_key);
@@ -42,18 +44,32 @@ public class GeoCodingEntity {
     }
 
 
+
     @CommandHandler
-    public Reply<Empty> stationRegistered(WeatherstationGeocoding.RegisterStationPerCountryCommand event, CommandContext<WeatherstationGeocoding.GeoCodingState> ctx){
+    public Reply<Empty> registerData(WeatherStationExtremesAggregation.AddToAggregationCommand command, CommandContext<WeatherstationGeocoding.GeoCodingState> ctx) {
+        if (command.getWeatherdata().getTemperaturesList().isEmpty() && command.getWeatherdata().getWindspeedsList().isEmpty()){
+            return stationRegistered(command.getWeatherdata(), ctx);
+        }
+        if (!command.getWeatherdata().getTemperaturesList().isEmpty()){
+            return processTemperatureAdded(command.getWeatherdata(), ctx);
+        }
+        return processWindspeedAdded(command.getWeatherdata(), ctx);
+
+    }
+
+
+
+    private Reply<Empty> stationRegistered(WeatherStationPublish.WeatherStationData data, CommandContext<WeatherstationGeocoding.GeoCodingState> ctx){
         logger.info("station registered: reverse geocoding the location to find the country");
 
         var state = ctx.getState().orElse(WeatherstationGeocoding.GeoCodingState.getDefaultInstance());
         var builder = WeatherstationGeocoding.GeoCodingState.newBuilder(state);
 
-        JOpenCageReverseRequest request = new JOpenCageReverseRequest(event.getStation().getLatitude(), event.getStation().getLongitude());
+        JOpenCageReverseRequest request = new JOpenCageReverseRequest(data.getLatitude(), data.getLongitude());
         JOpenCageResponse response = geocoder.reverse(request);
         var country = response.getFirstComponents().getCountryCode();
-        logger.info("registered " + event.getStation() + " in country " + country);
-        builder.putStationIdToCountry(event.getStation().getStationId(), country);
+        logger.info("registered " + data.getStationId() + " in country " + country);
+        builder.putStationIdToCountry(data.getStationId(), country);
 
         ctx.updateState(builder.build());
 
@@ -64,33 +80,34 @@ public class GeoCodingEntity {
     }
 
 
-    @CommandHandler
-    public Reply<Empty> processTemperatureAdded(WeatherstationGeocoding.RegisterTemperaturesPerCountryCommand event, CommandContext<WeatherstationGeocoding.GeoCodingState> ctx){
-        logger.info("temperature added for " + event + " with state " + ctx.getState());
+
+    private Reply<Empty> processTemperatureAdded(WeatherStationPublish.WeatherStationData data, CommandContext<WeatherstationGeocoding.GeoCodingState> ctx){
+        logger.info("temperature added for " + data + " with state " + ctx.getState());
         var state = ctx.getState().orElse(WeatherstationGeocoding.GeoCodingState.getDefaultInstance());
-        var country = state.getStationIdToCountryOrDefault(event.getStationId(),"none");
-        logger.info("country for " + event.getStationId() + " is " + country);
+        var country = state.getStationIdToCountryOrDefault(data.getStationId(),"none");
+        logger.info("country for " + data.getStationId() + " is " + country);
         var builder = WeatherstationGeocoding.CountryMeasurements.newBuilder();
         builder.setCountry(country);
         if (!country.equals("none")) {
-            event.getTempMeasurementsList().forEach(t -> {
-                builder.addTemperatures(WeatherStationAggregations.TemperatureMeasurement.newBuilder()
-                        .setStationId(event.getStationId())
+            data.getTemperaturesList().forEach(t -> {
+                builder.addTemperatures(WeatherStationExtremesAggregation.TemperatureMeasurement.newBuilder()
+                        .setStationId(data.getStationId())
                         .setMeasuredTemperature(t.getTemperatureCelcius())
                         .setMeasurementTime(t.getMeasurementTime()));
             });
+            logger.info("forwarding temperatures for country " + country);
             return Reply.forward(measurementsPublisher.createCall(builder.build()));
         } else {
-            logger.warn("no country found for station " + event.getStationId());
+            logger.warn("no country found for station " + data.getStationId());
             return Reply.message(Empty.getDefaultInstance());
         }
 
 
     }
 
-    @CommandHandler
-    public Reply<Empty> processWindspeedAdded(WeatherstationGeocoding.RegisterWindspeedsPerCountryCommand event, CommandContext<WeatherstationGeocoding.GeoCodingState> ctx){
-        logger.info("windspeeds added for " + event + " with state " + ctx.getState());
+
+    private Reply<Empty> processWindspeedAdded(WeatherStationPublish.WeatherStationData data, CommandContext<WeatherstationGeocoding.GeoCodingState> ctx){
+        logger.info("windspeeds added for " + data + " with state " + ctx.getState());
         return Reply.forward(measurementsPublisher.createCall(WeatherstationGeocoding.CountryMeasurements.getDefaultInstance()));
     }
 

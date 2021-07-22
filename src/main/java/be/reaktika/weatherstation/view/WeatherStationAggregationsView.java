@@ -1,6 +1,6 @@
 package be.reaktika.weatherstation.view;
 
-import be.reaktika.weatherstation.domain.WeatherStationAggregations.*;
+import be.reaktika.weatherstation.domain.WeatherStationExtremesAggregation.*;
 import com.akkaserverless.javasdk.view.UpdateHandler;
 import com.akkaserverless.javasdk.view.View;
 import org.slf4j.Logger;
