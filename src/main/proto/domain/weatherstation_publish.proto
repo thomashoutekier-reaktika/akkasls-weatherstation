@@ -16,7 +16,6 @@ message WeatherStationData {
     double longitude = 4;
     repeated WeatherStationTemperatures temperatures = 5;
     repeated WeatherStationWindspeeds windspeeds = 6;
-
 }
 
 message WeatherStationTemperatures {

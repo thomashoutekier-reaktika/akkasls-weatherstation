@@ -22,8 +22,8 @@ message TemperatureRecord {
 
 
 message WindRecord {
-    be.reaktika.weatherstation.domain.aggregations.WinspeedMeasurement current = 1;
-    be.reaktika.weatherstation.domain.aggregations.WinspeedMeasurement previousRecord = 2;
+    be.reaktika.weatherstation.domain.aggregations.WindspeedMeasurement current = 1;
+    be.reaktika.weatherstation.domain.aggregations.WindspeedMeasurement previousRecord = 2;
 }
 
 

@@ -16,7 +16,7 @@ message GeoCodingState {
 message CountryMeasurements {
   string country = 1;
   repeated be.reaktika.weatherstation.domain.aggregations.TemperatureMeasurement temperatures = 3;
-  repeated be.reaktika.weatherstation.domain.aggregations.WinspeedMeasurement windspeeds = 4;
+  repeated be.reaktika.weatherstation.domain.aggregations.WindspeedMeasurement windspeeds = 4;
 }
 
 

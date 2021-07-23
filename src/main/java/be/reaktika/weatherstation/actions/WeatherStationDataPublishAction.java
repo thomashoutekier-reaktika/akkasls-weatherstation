@@ -1,8 +1,9 @@
 package be.reaktika.weatherstation.actions;
 
 import be.reaktika.weatherstation.domain.WeatherStationDomain;
-import be.reaktika.weatherstation.domain.WeatherStationEntity;
-import be.reaktika.weatherstation.domain.WeatherStationPublish.*;
+import be.reaktika.weatherstation.domain.WeatherStationPublish.WeatherStationData;
+import be.reaktika.weatherstation.domain.WeatherStationPublish.WeatherStationTemperatures;
+import be.reaktika.weatherstation.domain.WeatherStationPublish.WeatherStationWindspeeds;
 import com.akkaserverless.javasdk.action.Action;
 import com.akkaserverless.javasdk.action.Handler;
 import org.slf4j.Logger;

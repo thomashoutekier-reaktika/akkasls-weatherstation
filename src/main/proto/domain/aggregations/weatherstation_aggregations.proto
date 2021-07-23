@@ -21,7 +21,7 @@ message TemperatureMeasurement {
 }
 
 
-message WinspeedMeasurement {
+message WindspeedMeasurement {
   string station_id = 1;
   double measuredWindspeed = 2;
   google.protobuf.Timestamp measurementTime = 3;

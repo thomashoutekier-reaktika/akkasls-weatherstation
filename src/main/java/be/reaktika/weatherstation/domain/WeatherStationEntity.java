@@ -1,8 +1,9 @@
 package be.reaktika.weatherstation.domain;
 
 import be.reaktika.weatherstation.domain.WeatherStationDomain.*;
-import be.reaktika.weatherstation.domain.geocoding.WeatherstationGeocoding;
-import com.akkaserverless.javasdk.*;
+import com.akkaserverless.javasdk.Context;
+import com.akkaserverless.javasdk.EntityId;
+import com.akkaserverless.javasdk.Reply;
 import com.akkaserverless.javasdk.eventsourcedentity.*;
 import com.google.protobuf.Empty;
 import org.slf4j.Logger;
@@ -18,6 +19,9 @@ public class WeatherStationEntity {
     private String name = "unknown";
     private double latitude = 0;
     private double longitude = 0;
+
+    public static final double MAX_LAT_ABS = 85.;
+    public static final double MAX_LON_ABS = 180.;
 
 
     public WeatherStationEntity(@EntityId String entityId, Context ctx) {
@@ -44,6 +48,9 @@ public class WeatherStationEntity {
     @CommandHandler
     protected Reply<Empty> registerStation(StationRegistrationCommand command, CommandContext ctx) {
         logger.info("registering station " + command);
+        if (Math.abs(command.getLatitude()) > MAX_LAT_ABS || Math.abs(command.getLongitude()) > MAX_LON_ABS){
+            throw ctx.fail(String.format("latitude or longitude are invalid: %f, %f",command.getLongitude(), command.getLongitude()));
+        }
         var event = StationRegistered.newBuilder()
                 .setStationName(command.getStationName())
                 .setStationId(command.getStationId())
