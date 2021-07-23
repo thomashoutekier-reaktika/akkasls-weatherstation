@@ -8,9 +8,10 @@ import be.reaktika.weatherstation.api.WeatherStationApi;
 import be.reaktika.weatherstation.domain.*;
 import be.reaktika.weatherstation.domain.aggregations.ExtremesEntity;
 import be.reaktika.weatherstation.domain.aggregations.GeoCodingEntity;
-import be.reaktika.weatherstation.ports.geocoding.WeatherstationGeocoding;
-import be.reaktika.weatherstation.ports.geocoding.publishing.WeatherstationGeocodingPublishing;
-import be.reaktika.weatherstation.view.WeatherStationAggregationsView;
+import be.reaktika.weatherstation.domain.aggregations.WeatherStationExtremesAggregation;
+import be.reaktika.weatherstation.domain.geocoding.WeatherstationGeocoding;
+import be.reaktika.weatherstation.domain.geocoding.publishing.WeatherstationGeocodingPublishing;
+import be.reaktika.weatherstation.view.WeatherStationExtremesViewImpl;
 import be.reaktika.weatherstation.view.WeatherStationAverageViewImpl;
 import be.reaktika.weatherstation.view.WeatherstationAverageView;
 import be.reaktika.weatherstation.view.WeatherstationExtremesView;
@@ -22,6 +23,7 @@ public final class Main {
 
     public static final AkkaServerless SERVICE =
             new AkkaServerless()
+//the entities
             .registerEventSourcedEntity(WeatherStationEntity.class,
                     WeatherStationDomain.getDescriptor().findServiceByName("WeatherStationEntityService"),
                     WeatherStationDomain.getDescriptor())
@@ -31,6 +33,7 @@ public final class Main {
             .registerValueEntity(GeoCodingEntity.class,
                     WeatherstationGeocoding.getDescriptor().findServiceByName("GeoCodingEntityService"),
                     WeatherstationGeocoding.getDescriptor())
+//the actions
             .registerAction(WeatherStationPublishApiImpl.class,
                     WeatherStationApi.getDescriptor().findServiceByName("WeatherStationApiService"),
                     WeatherStationApi.getDescriptor())
@@ -43,14 +46,15 @@ public final class Main {
             .registerAction(WeatherStationDataPublishAction.class,
                     WeatherStationPublish.getDescriptor().findServiceByName("WeatherStationPublishService"),
                     WeatherStationPublish.getDescriptor())
+//the views
             .registerView(WeatherStationAverageViewImpl.class,
                     WeatherstationAverageView.getDescriptor().findServiceByName("WeatherStationOverallAverage"),
-                    "weatherstationOverallAverage",
+                    "weatherstationOverallAverageView",
                     WeatherstationAverageView.getDescriptor())
             .registerView(
-                    WeatherStationAggregationsView.class,
+                    WeatherStationExtremesViewImpl.class,
                     WeatherstationExtremesView.getDescriptor().findServiceByName("WeatherStationExtremes"),
-                    "aggregations",
+                    "extemesView",
                     WeatherstationExtremesView.getDescriptor())
 
             ;

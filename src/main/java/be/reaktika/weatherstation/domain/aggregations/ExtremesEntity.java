@@ -1,6 +1,7 @@
 package be.reaktika.weatherstation.domain.aggregations;
 
-import be.reaktika.weatherstation.domain.WeatherStationExtremesAggregation.*;
+import be.reaktika.weatherstation.domain.aggregations.WeatherStationExtremesAggregation.*;
+import be.reaktika.weatherstation.domain.aggregations.WeatherStationAggregation.*;
 import be.reaktika.weatherstation.domain.WeatherStationPublish;
 import com.akkaserverless.javasdk.EntityId;
 import com.akkaserverless.javasdk.Reply;
@@ -27,7 +28,7 @@ public class ExtremesEntity {
 
 
     @CommandHandler
-    public Reply<Empty> registerData(AddToAggregationCommand command, CommandContext<Aggregations> ctx) {
+    public Reply<Empty> registerData(AddToAggregationCommand command, CommandContext<WeatherStationExtremes> ctx) {
         if (!command.getWeatherdata().getTemperaturesList().isEmpty()){
             logger.info("registering Temperature " + command.getWeatherdata().getTemperaturesList());
             return aggregateTemperature(command.getWeatherdata(), ctx);
@@ -43,8 +44,8 @@ public class ExtremesEntity {
 
     }
 
-    private Reply<Empty> aggregateTemperature(WeatherStationPublish.WeatherStationData weatherdata, CommandContext<Aggregations> ctx) {
-        WeatherStationExtremes currentExtremes = ctx.getState().map(Aggregations::getExtremes).orElse(WeatherStationExtremes.getDefaultInstance());
+    private Reply<Empty> aggregateTemperature(WeatherStationPublish.WeatherStationData weatherdata, CommandContext<WeatherStationExtremes> ctx) {
+        WeatherStationExtremes currentExtremes = ctx.getState().orElse(WeatherStationExtremes.getDefaultInstance());
         WeatherStationExtremes.Builder newExtremesBuilder = WeatherStationExtremes.newBuilder(currentExtremes);
 
         var sorted = weatherdata.getTemperaturesList()
@@ -77,14 +78,7 @@ public class ExtremesEntity {
             newExtremesBuilder.setMinTemperature(previousMinRecord);
         }
 
-        Aggregations.Builder stateBuilder;
-        if (ctx.getState().isPresent()){
-            stateBuilder = Aggregations.newBuilder(ctx.getState().get());
-        }else {
-            stateBuilder = Aggregations.newBuilder()
-                    .setExtremes(WeatherStationExtremes.newBuilder().setMaxTemperature(TemperatureRecord.newBuilder().setCurrent(highestInEvent))
-                            .setMinTemperature(TemperatureRecord.newBuilder().setCurrent(lowestInEvent)));
-        }
+
         if(highestInEvent.getMeasuredTemperature() > previousMaxRecord.getCurrent().getMeasuredTemperature()){
             logger.info("high temperature record is broken");
             newExtremesBuilder.setMaxTemperature(TemperatureRecord.newBuilder()
@@ -98,8 +92,7 @@ public class ExtremesEntity {
                     .setPreviousRecord(previousMinRecord.getCurrent()));
         }
         var newExtremes = newExtremesBuilder.build();
-        var newState = stateBuilder.setExtremes(newExtremes).build();
-        ctx.updateState(newState);
+        ctx.updateState(newExtremes);
 
         return Reply.message(Empty.getDefaultInstance());
     }

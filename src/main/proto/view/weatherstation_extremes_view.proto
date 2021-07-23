@@ -3,31 +3,29 @@ syntax = "proto3";
 package be.reaktika.weatherstation.view;
 import "akkaserverless/annotations.proto";
 import "google/api/annotations.proto";
-import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
-import "domain/weatherstation_domain.proto";
-import "domain/weatherstation_extremes.proto";
+import "domain/aggregations/weatherstation_extremes.proto";
 
 
 service WeatherStationExtremes {
 
-  rpc UpdateAggregations(be.reaktika.weatherstation.domain.Aggregations) returns (be.reaktika.weatherstation.domain.Aggregations) {
+  rpc UpdateAggregations(be.reaktika.weatherstation.domain.aggregations.WeatherStationExtremes) returns (be.reaktika.weatherstation.domain.aggregations.WeatherStationExtremes) {
     option (akkaserverless.method).eventing.in = {
       value_entity: "weatherstationextremes"
     };
     option(akkaserverless.method).view.update = {
-      table: "aggregations_view"
+      table: "extremes_view"
       transform_updates: true
     };
   }
 
 
-  rpc GetAggregations(google.protobuf.Empty) returns (stream be.reaktika.weatherstation.domain.Aggregations) {
+  rpc GetAggregations(google.protobuf.Empty) returns (stream be.reaktika.weatherstation.domain.aggregations.WeatherStationExtremes) {
     option (akkaserverless.method).view.query = {
-      query: "SELECT * from aggregations_view"
+      query: "SELECT * from extremes_view"
     };
     option (google.api.http) = {
-      get: "/weather/aggregations"
+      get: "/weather/extremes"
     };
   }
 }

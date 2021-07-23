@@ -1,8 +1,9 @@
 package be.reaktika.weatherstation.domain.aggregations;
 
-import be.reaktika.weatherstation.domain.WeatherStationExtremesAggregation;
+import be.reaktika.weatherstation.domain.aggregations.WeatherStationExtremesAggregation;
+import be.reaktika.weatherstation.domain.aggregations.WeatherStationAggregation.*;
 import be.reaktika.weatherstation.domain.WeatherStationPublish;
-import be.reaktika.weatherstation.ports.geocoding.WeatherstationGeocoding;
+import be.reaktika.weatherstation.domain.geocoding.WeatherstationGeocoding;
 import com.akkaserverless.javasdk.*;
 import com.akkaserverless.javasdk.valueentity.CommandContext;
 import com.akkaserverless.javasdk.valueentity.CommandHandler;
@@ -24,7 +25,7 @@ import org.slf4j.LoggerFactory;
 public class GeoCodingEntity {
 
     private static final Logger logger = LoggerFactory.getLogger(GeoCodingEntity.class);
-    private final WeatherStationExtremesAggregation.AggregationType type;
+    private final AggregationType type;
     private final String api_key;
     private final JOpenCageGeocoder geocoder;
 
@@ -32,7 +33,7 @@ public class GeoCodingEntity {
 
     public GeoCodingEntity(@EntityId String type, Context ctx){
         Config config = ConfigFactory.load();
-        this.type = WeatherStationExtremesAggregation.AggregationType.valueOf(type);
+        this.type = AggregationType.valueOf(type);
         logger.info("creating GeoCodingEntity with env " + System.getenv("OPENCAGE_API_KEY"));
         this.api_key = config.getString("reactiveweather.geocode.opencage.apikey");
         logger.info("key " + api_key);
@@ -46,7 +47,7 @@ public class GeoCodingEntity {
 
 
     @CommandHandler
-    public Reply<Empty> registerData(WeatherStationExtremesAggregation.AddToAggregationCommand command, CommandContext<WeatherstationGeocoding.GeoCodingState> ctx) {
+    public Reply<Empty> registerData(AddToAggregationCommand command, CommandContext<WeatherstationGeocoding.GeoCodingState> ctx) {
         if (command.getWeatherdata().getTemperaturesList().isEmpty() && command.getWeatherdata().getWindspeedsList().isEmpty()){
             return stationRegistered(command.getWeatherdata(), ctx);
         }
@@ -90,7 +91,7 @@ public class GeoCodingEntity {
         builder.setCountry(country);
         if (!country.equals("none")) {
             data.getTemperaturesList().forEach(t -> {
-                builder.addTemperatures(WeatherStationExtremesAggregation.TemperatureMeasurement.newBuilder()
+                builder.addTemperatures(TemperatureMeasurement.newBuilder()
                         .setStationId(data.getStationId())
                         .setMeasuredTemperature(t.getTemperatureCelcius())
                         .setMeasurementTime(t.getMeasurementTime()));

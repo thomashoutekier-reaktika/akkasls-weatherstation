@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+import "domain/aggregations/weatherstation_geocoding.proto";
+import "akkaserverless/annotations.proto";
+
+
+
+package be.reaktika.weatherstation.domain.geocoding.publishing;
+
+
+service GeoCodingPublishService {
+  rpc PublishMeasurements(be.reaktika.weatherstation.domain.geocoding.CountryMeasurements) returns (CountryMeasurements) {
+    option (akkaserverless.method).eventing = {
+      out: {
+        topic: "measurements_per_country";
+      }
+    };
+  }
+
+
+}

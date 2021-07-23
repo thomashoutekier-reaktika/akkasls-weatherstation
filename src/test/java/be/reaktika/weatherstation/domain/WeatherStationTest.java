@@ -1,8 +1,6 @@
 package be.reaktika.weatherstation.domain;
 
-import be.reaktika.weatherstation.ports.geocoding.WeatherstationGeocoding;
 import com.akkaserverless.javasdk.ServiceCallFactory;
-import com.akkaserverless.javasdk.ServiceCallRef;
 import com.akkaserverless.javasdk.eventsourcedentity.CommandContext;
 import com.google.protobuf.Timestamp;
 import org.junit.Before;

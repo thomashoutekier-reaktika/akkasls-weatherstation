@@ -1,7 +1,7 @@
 package be.reaktika.weatherstation.domain;
 
 import be.reaktika.weatherstation.domain.WeatherStationDomain.*;
-import be.reaktika.weatherstation.ports.geocoding.WeatherstationGeocoding;
+import be.reaktika.weatherstation.domain.geocoding.WeatherstationGeocoding;
 import com.akkaserverless.javasdk.*;
 import com.akkaserverless.javasdk.eventsourcedentity.*;
 import com.google.protobuf.Empty;

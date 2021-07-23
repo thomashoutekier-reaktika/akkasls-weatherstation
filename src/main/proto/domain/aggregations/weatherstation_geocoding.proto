@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+import "domain/aggregations/weatherstation_aggregations.proto";
+import "google/protobuf/empty.proto";
+
+
+package be.reaktika.weatherstation.domain.geocoding;
+
+message GeoCodingState {
+  map<string,string> stationIdToCountry = 1;
+}
+
+
+
+//events
+message CountryMeasurements {
+  string country = 1;
+  repeated be.reaktika.weatherstation.domain.aggregations.TemperatureMeasurement temperatures = 3;
+  repeated be.reaktika.weatherstation.domain.aggregations.WinspeedMeasurement windspeeds = 4;
+}
+
+
+
+service GeoCodingEntityService {
+  rpc RegisterData(be.reaktika.weatherstation.domain.aggregations.AddToAggregationCommand) returns (google.protobuf.Empty);
+
+}

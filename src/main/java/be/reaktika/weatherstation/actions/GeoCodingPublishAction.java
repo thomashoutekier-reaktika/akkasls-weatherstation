@@ -1,6 +1,6 @@
 package be.reaktika.weatherstation.actions;
 
-import be.reaktika.weatherstation.ports.geocoding.WeatherstationGeocoding;
+import be.reaktika.weatherstation.domain.geocoding.WeatherstationGeocoding;
 import com.akkaserverless.javasdk.action.Action;
 import com.akkaserverless.javasdk.action.Handler;
 import org.slf4j.Logger;

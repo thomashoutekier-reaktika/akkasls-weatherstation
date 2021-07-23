@@ -2,9 +2,7 @@ syntax = "proto3";
 
 package be.reaktika.weatherstation.domain;
 
-import "domain/weatherstation_domain.proto";
 import "domain/weatherstation_publish.proto";
-import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
 import "akkaserverless/annotations.proto";
 

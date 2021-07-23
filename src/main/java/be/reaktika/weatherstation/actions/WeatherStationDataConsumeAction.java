@@ -1,11 +1,9 @@
 package be.reaktika.weatherstation.actions;
 
-import be.reaktika.weatherstation.domain.WeatherStationExtremesAggregation;
 import be.reaktika.weatherstation.domain.WeatherStationPublish;
-import com.akkaserverless.javasdk.Context;
-import com.akkaserverless.javasdk.Effect;
+import be.reaktika.weatherstation.domain.aggregations.WeatherStationAggregation.AddToAggregationCommand;
+import be.reaktika.weatherstation.domain.aggregations.WeatherStationAggregation.AggregationType;
 import com.akkaserverless.javasdk.Reply;
-import com.akkaserverless.javasdk.ServiceCallRef;
 import com.akkaserverless.javasdk.action.Action;
 import com.akkaserverless.javasdk.action.Handler;
 import com.google.protobuf.Empty;
@@ -17,26 +15,26 @@ public class WeatherStationDataConsumeAction {
     private final Logger logger = LoggerFactory.getLogger(WeatherStationDataConsumeAction.class);
 
 
-   private final ServiceCallRef<WeatherStationExtremesAggregation.AddToAggregationCommand> extremesAggregator;
-    private final ServiceCallRef<WeatherStationExtremesAggregation.AddToAggregationCommand> geoCodingAggregator;
-
+   //private final ServiceCallRef<WeatherStationExtremesAggregation.AddToAggregationCommand> extremesAggregator;
+    //private final ServiceCallRef<WeatherStationExtremesAggregation.AddToAggregationCommand> geoCodingAggregator;
+/*
     public WeatherStationDataConsumeAction(Context ctx){
         this.extremesAggregator = ctx.serviceCallFactory().lookup("be.reaktika.weatherstation.domain.WeatherStationAggregationService","RegisterData", WeatherStationExtremesAggregation.AddToAggregationCommand.class);
-        this.geoCodingAggregator = ctx.serviceCallFactory().lookup("be.reaktika.weatherstation.ports.geocoding.GeoCodingEntityService","RegisterData", WeatherStationExtremesAggregation.AddToAggregationCommand.class);
+        this.geoCodingAggregator = ctx.serviceCallFactory().lookup("be.reaktika.weatherstation.domain.geocoding.GeoCodingEntityService","RegisterData", WeatherStationExtremesAggregation.AddToAggregationCommand.class);
         logger.info("created WeatherStationDataConsumeAction");
     }
-
+*/
     @Handler
     public Reply<Empty> dispatchWeatherStationData(WeatherStationPublish.WeatherStationData data) {
         logger.info("dispatching data to aggregators");
-        var extremesCommand =  WeatherStationExtremesAggregation.AddToAggregationCommand.newBuilder()
-                .setType(WeatherStationExtremesAggregation.AggregationType.EXTREMES)
+        var extremesCommand =  AddToAggregationCommand.newBuilder()
+                .setType(AggregationType.EXTREMES)
                 .setWeatherdata(data);
-        var countryCommand = WeatherStationExtremesAggregation.AddToAggregationCommand.newBuilder()
-                .setType(WeatherStationExtremesAggregation.AggregationType.COUNTRY)
+        var countryCommand = AddToAggregationCommand.newBuilder()
+                .setType(AggregationType.COUNTRY)
                 .setWeatherdata(data);
-        return Reply.message(Empty.getDefaultInstance())
-                .addEffects(Effect.of(extremesAggregator.createCall(extremesCommand.build())))
-                .addEffects(Effect.of(geoCodingAggregator.createCall(countryCommand.build())));
+        return Reply.message(Empty.getDefaultInstance());
+               // .addEffects(Effect.of(extremesAggregator.createCall(extremesCommand.build())))
+              //  .addEffects(Effect.of(geoCodingAggregator.createCall(countryCommand.build())));
     }
 }
