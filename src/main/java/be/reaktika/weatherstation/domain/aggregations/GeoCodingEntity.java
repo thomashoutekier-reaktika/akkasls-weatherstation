@@ -1,16 +1,14 @@
 package be.reaktika.weatherstation.domain.aggregations;
 
-import be.reaktika.weatherstation.domain.aggregations.WeatherStationExtremesAggregation;
-import be.reaktika.weatherstation.domain.aggregations.WeatherStationAggregation.*;
 import be.reaktika.weatherstation.domain.WeatherStationPublish;
+import be.reaktika.weatherstation.domain.aggregations.WeatherStationAggregation.AddToAggregationCommand;
+import be.reaktika.weatherstation.domain.aggregations.WeatherStationAggregation.AggregationType;
+import be.reaktika.weatherstation.domain.aggregations.WeatherStationAggregation.TemperatureMeasurement;
 import be.reaktika.weatherstation.domain.geocoding.WeatherstationGeocoding;
 import com.akkaserverless.javasdk.*;
 import com.akkaserverless.javasdk.valueentity.CommandContext;
 import com.akkaserverless.javasdk.valueentity.CommandHandler;
 import com.akkaserverless.javasdk.valueentity.ValueEntity;
-import com.byteowls.jopencage.JOpenCageGeocoder;
-import com.byteowls.jopencage.model.JOpenCageResponse;
-import com.byteowls.jopencage.model.JOpenCageReverseRequest;
 import com.google.protobuf.Empty;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
@@ -27,7 +25,6 @@ public class GeoCodingEntity {
     private static final Logger logger = LoggerFactory.getLogger(GeoCodingEntity.class);
     private final AggregationType type;
     private final String api_key;
-    private final JOpenCageGeocoder geocoder;
 
     private final ServiceCallRef<WeatherstationGeocoding.CountryMeasurements> measurementsPublisher;
 
@@ -37,7 +34,6 @@ public class GeoCodingEntity {
         logger.info("creating GeoCodingEntity with env " + System.getenv("OPENCAGE_API_KEY"));
         this.api_key = config.getString("reactiveweather.geocode.opencage.apikey");
         logger.info("key " + api_key);
-        this.geocoder = new JOpenCageGeocoder(api_key);
         measurementsPublisher = ctx.serviceCallFactory()
                 .lookup("be.reaktika.weatherstation.ports.geocoding.publishing.GeoCodingPublishService",
                         "PublishMeasurements",
@@ -63,21 +59,24 @@ public class GeoCodingEntity {
     private Reply<Empty> stationRegistered(WeatherStationPublish.WeatherStationData data, CommandContext<WeatherstationGeocoding.GeoCodingState> ctx){
         logger.info("station registered: reverse geocoding the location to find the country");
 
-        var state = ctx.getState().orElse(WeatherstationGeocoding.GeoCodingState.getDefaultInstance());
-        var builder = WeatherstationGeocoding.GeoCodingState.newBuilder(state);
+        var reply = Reply.message(Empty.getDefaultInstance());
+        var country = GeoCodingService.getInstance().getCountryCode(data.getLatitude(), data.getLongitude());
 
-        JOpenCageReverseRequest request = new JOpenCageReverseRequest(data.getLatitude(), data.getLongitude());
-        JOpenCageResponse response = geocoder.reverse(request);
-        var country = response.getFirstComponents().getCountryCode();
         logger.info("registered " + data.getStationId() + " in country " + country);
-        builder.putStationIdToCountry(data.getStationId(), country);
+        country.ifPresent(c -> {
+            logger.info("updating state: " + data.getStationId() + "-> " + c);
+            var currentState = ctx.getState().orElse(WeatherstationGeocoding.GeoCodingState.getDefaultInstance());
+            var stateBuilder = WeatherstationGeocoding.GeoCodingState.newBuilder(currentState);
+            stateBuilder.putStationIdToCountry(data.getStationId(), c);
+            ctx.updateState(stateBuilder.build());
 
-        ctx.updateState(builder.build());
+            var toPublish = WeatherstationGeocoding.CountryMeasurements
+                .newBuilder().setCountry(c);
+            reply.addEffects(Effect.of(measurementsPublisher.createCall(toPublish.build())));
+        });
 
-        var toPublish = WeatherstationGeocoding.CountryMeasurements
-                .newBuilder().setCountry(country);
 
-        return Reply.message(Empty.getDefaultInstance()).addEffects(Effect.of(measurementsPublisher.createCall(toPublish.build())));
+        return reply;
     }
 
 
@@ -85,11 +84,11 @@ public class GeoCodingEntity {
     private Reply<Empty> processTemperatureAdded(WeatherStationPublish.WeatherStationData data, CommandContext<WeatherstationGeocoding.GeoCodingState> ctx){
         logger.info("temperature added for " + data + " with state " + ctx.getState());
         var state = ctx.getState().orElse(WeatherstationGeocoding.GeoCodingState.getDefaultInstance());
-        var country = state.getStationIdToCountryOrDefault(data.getStationId(),"none");
+        var country = state.getStationIdToCountryOrDefault(data.getStationId(),"NONE");
         logger.info("country for " + data.getStationId() + " is " + country);
         var builder = WeatherstationGeocoding.CountryMeasurements.newBuilder();
         builder.setCountry(country);
-        if (!country.equals("none")) {
+        if (!country.equals("NONE")) {
             data.getTemperaturesList().forEach(t -> {
                 builder.addTemperatures(TemperatureMeasurement.newBuilder()
                         .setStationId(data.getStationId())

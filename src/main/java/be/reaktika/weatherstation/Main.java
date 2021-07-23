@@ -8,14 +8,17 @@ import be.reaktika.weatherstation.api.WeatherStationApi;
 import be.reaktika.weatherstation.domain.*;
 import be.reaktika.weatherstation.domain.aggregations.ExtremesEntity;
 import be.reaktika.weatherstation.domain.aggregations.GeoCodingEntity;
+import be.reaktika.weatherstation.domain.aggregations.GeoCodingService;
 import be.reaktika.weatherstation.domain.aggregations.WeatherStationExtremesAggregation;
 import be.reaktika.weatherstation.domain.geocoding.WeatherstationGeocoding;
 import be.reaktika.weatherstation.domain.geocoding.publishing.WeatherstationGeocodingPublishing;
+import be.reaktika.weatherstation.ports.OpenCageGeoCodingService;
 import be.reaktika.weatherstation.view.WeatherStationExtremesViewImpl;
 import be.reaktika.weatherstation.view.WeatherStationAverageViewImpl;
 import be.reaktika.weatherstation.view.WeatherstationAverageView;
 import be.reaktika.weatherstation.view.WeatherstationExtremesView;
 import com.akkaserverless.javasdk.AkkaServerless;
+import com.typesafe.config.ConfigFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,6 +67,11 @@ public final class Main {
 
     public static void main(String[] args) throws Exception {
         LOG.info("starting the Akka Serverless service");
-            SERVICE.start().toCompletableFuture().get();
+
+        //create geocoding implementation.
+        GeoCodingService geoCoding = new OpenCageGeoCodingService(ConfigFactory.load());
+        GeoCodingService.setInstance(geoCoding);
+
+        SERVICE.start().toCompletableFuture().get();
     }
 }

@@ -14,9 +14,6 @@ public class WeatherStationTest {
     private CommandContext context = Mockito.mock(CommandContext.class);
     private ServiceCallFactory factoryMock = Mockito.mock(ServiceCallFactory.class);
 
-
-
-
     private class MockedContextFailure extends RuntimeException {};
 
     @Before
