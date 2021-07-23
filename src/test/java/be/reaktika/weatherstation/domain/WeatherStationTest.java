@@ -12,15 +12,7 @@ public class WeatherStationTest {
     private String entityId = "entityId1";
     private WeatherStationEntity entity;
     private CommandContext context = Mockito.mock(CommandContext.class);
-    private ServiceCallFactory factoryMock = Mockito.mock(ServiceCallFactory.class);
 
-    private class MockedContextFailure extends RuntimeException {};
-
-    @Before
-    public void init(){
-        Mockito.when(context.serviceCallFactory()).thenReturn(factoryMock);
-
-    }
 
     @Test
     public void registerStationTest() {
