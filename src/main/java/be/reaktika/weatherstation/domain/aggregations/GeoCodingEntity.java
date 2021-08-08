@@ -35,7 +35,7 @@ public class GeoCodingEntity {
         this.api_key = config.getString("reactiveweather.geocode.opencage.apikey");
         logger.info("key " + api_key);
         measurementsPublisher = ctx.serviceCallFactory()
-                .lookup("be.reaktika.weatherstation.ports.geocoding.publishing.GeoCodingPublishService",
+                .lookup("be.reaktika.weatherstation.domain.geocoding.publishing.GeoCodingPublishService",
                         "PublishMeasurements",
                         WeatherstationGeocoding.CountryMeasurements.class);
     }

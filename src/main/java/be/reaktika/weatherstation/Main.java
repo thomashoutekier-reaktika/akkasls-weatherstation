@@ -31,7 +31,7 @@ public final class Main {
                     WeatherStationDomain.getDescriptor().findServiceByName("WeatherStationEntityService"),
                     WeatherStationDomain.getDescriptor())
             .registerValueEntity(ExtremesEntity.class,
-                    WeatherStationExtremesAggregation.getDescriptor().findServiceByName("WeatherStationAggregationService"),
+                    WeatherStationExtremesAggregation.getDescriptor().findServiceByName("WeatherStationExtremesEntityService"),
                     WeatherStationExtremesAggregation.getDescriptor())
             .registerValueEntity(GeoCodingEntity.class,
                     WeatherstationGeocoding.getDescriptor().findServiceByName("GeoCodingEntityService"),

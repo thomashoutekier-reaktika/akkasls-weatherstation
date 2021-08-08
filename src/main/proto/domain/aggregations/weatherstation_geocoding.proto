@@ -4,13 +4,11 @@ import "domain/aggregations/weatherstation_aggregations.proto";
 import "google/protobuf/empty.proto";
 
 
-package be.reaktika.weatherstation.domain.geocoding;
+package ;
 
 message GeoCodingState {
   map<string,string> stationIdToCountry = 1;
 }
-
-
 
 //events
 message CountryMeasurements {

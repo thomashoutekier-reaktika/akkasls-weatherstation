@@ -27,7 +27,7 @@ message WindRecord {
 }
 
 
-service WeatherStationAggregationService {
+service WeatherStationExtremesEntityService {
     option (akkaserverless.service) = {
         type : SERVICE_TYPE_ENTITY
         component : ".domain.Aggregations"
