@@ -8,6 +8,14 @@ import "akkaserverless/annotations.proto";
 
 option java_outer_classname = "WeatherStationDomain";
 
+// Describes how this domain relates to an event sourced entity
+option (akkaserverless.file).event_sourced_entity = {
+    name: "WeatherStation"
+    entity_type: "weatherstation"
+    state: "WeatherStationState"
+    events: ["StationRegistered", "TemperaturesCelciusAdded", "WindspeedsAdded"]
+};
+
 message WeatherStationState {
     string station_id = 1;
     string station_name = 2;
@@ -75,7 +83,7 @@ message Windspeed {
 service WeatherStationEntityService {
     option (akkaserverless.service) = {
         type : SERVICE_TYPE_ENTITY
-        component : ".domain.WeatherStation"
+        component : "be.reaktika.weatherstation.domain.WeatherStation"
     };
 
     rpc RegisterStation(StationRegistrationCommand) returns (google.protobuf.Empty);

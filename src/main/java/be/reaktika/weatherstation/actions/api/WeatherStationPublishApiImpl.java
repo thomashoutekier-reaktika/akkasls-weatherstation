@@ -4,21 +4,21 @@ import be.reaktika.weatherstation.api.WeatherStationApi.StationRegistrationReque
 import be.reaktika.weatherstation.api.WeatherStationApi.StationTemperaturePublishRequest;
 import be.reaktika.weatherstation.api.WeatherStationApi.StationWindspeedPublishRequest;
 import be.reaktika.weatherstation.domain.WeatherStationDomain;
-import com.akkaserverless.javasdk.Reply;
+
 import com.akkaserverless.javasdk.ServiceCallRef;
 import com.akkaserverless.javasdk.action.Action;
 import com.akkaserverless.javasdk.action.ActionContext;
-import com.akkaserverless.javasdk.action.Handler;
+
 import com.google.protobuf.Empty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Action
+
 public class WeatherStationPublishApiImpl {
 
     private static final String WEATHERSTATION_ENTITY_SERVICE_NAME = "be.reaktika.weatherstation.domain.WeatherStationEntityService";
     private final Logger logger = LoggerFactory.getLogger(WeatherStationPublishApiImpl.class);
-
+/*
     @Handler
     public Reply<Empty> registerStation(StationRegistrationRequest request, ActionContext ctx) {
         logger.info("registering station " + request);
@@ -62,4 +62,6 @@ public class WeatherStationPublishApiImpl {
         return Reply.forward(publishWindCall.createCall(commandBuilder.build()));
     }
 
+
+ */
 }

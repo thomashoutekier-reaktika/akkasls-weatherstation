@@ -3,11 +3,7 @@ package be.reaktika.weatherstation.domain.aggregations;
 import be.reaktika.weatherstation.domain.aggregations.WeatherStationExtremesAggregation.*;
 import be.reaktika.weatherstation.domain.aggregations.WeatherStationAggregation.*;
 import be.reaktika.weatherstation.domain.WeatherStationPublish;
-import com.akkaserverless.javasdk.EntityId;
-import com.akkaserverless.javasdk.Reply;
-import com.akkaserverless.javasdk.valueentity.CommandContext;
-import com.akkaserverless.javasdk.valueentity.CommandHandler;
-import com.akkaserverless.javasdk.valueentity.ValueEntity;
+import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
 import com.google.protobuf.Empty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,38 +11,19 @@ import org.slf4j.LoggerFactory;
 import java.util.Comparator;
 import java.util.stream.Collectors;
 
-@ValueEntity(entityType = "weatherstationextremes")
-public class ExtremesEntity {
+public class ExtremesEntity extends AbstractWeatherStationExtremes{
 
     private final static Logger logger = LoggerFactory.getLogger(ExtremesEntity.class);
     private final AggregationType type;
 
 
-    public ExtremesEntity(@EntityId String type) {
-        this.type = AggregationType.valueOf(type);
+    public ExtremesEntity(ValueEntityContext context) {
+        this.type = AggregationType.valueOf(context.entityId());
     }
 
 
-    @CommandHandler
-    public Reply<Empty> registerData(AddToAggregationCommand command, CommandContext<WeatherStationExtremes> ctx) {
-        if (!command.getWeatherdata().getTemperaturesList().isEmpty()){
-            logger.info("registering Temperature " + command.getWeatherdata().getTemperaturesList());
-            return aggregateTemperature(command.getWeatherdata(), ctx);
-        } else if (!command.getWeatherdata().getWindspeedsList().isEmpty()){
-            logger.info("registering windspeed " + command.getWeatherdata().getWindspeedsList());
-
-            return Reply.message(Empty.getDefaultInstance());
-        }else {
-            logger.info("registering station: nothing to aggregate");
-            return Reply.message(Empty.getDefaultInstance());
-        }
-
-
-    }
-
-    private Reply<Empty> aggregateTemperature(WeatherStationPublish.WeatherStationData weatherdata, CommandContext<WeatherStationExtremes> ctx) {
-        WeatherStationExtremes currentExtremes = ctx.getState().orElse(WeatherStationExtremes.getDefaultInstance());
-        WeatherStationExtremes.Builder newExtremesBuilder = WeatherStationExtremes.newBuilder(currentExtremes);
+    private Effect<Empty> aggregateTemperature(WeatherStationPublish.WeatherStationData weatherdata, WeatherStationExtremesState currentExtremes) {
+        WeatherStationExtremesState.Builder newExtremesBuilder = WeatherStationExtremesState.newBuilder(currentExtremes);
 
         var sorted = weatherdata.getTemperaturesList()
                 .stream()
@@ -92,10 +69,27 @@ public class ExtremesEntity {
                     .setPreviousRecord(previousMinRecord.getCurrent()));
         }
         var newExtremes = newExtremesBuilder.build();
-        ctx.updateState(newExtremes);
-
-        return Reply.message(Empty.getDefaultInstance());
+        return effects().updateState(newExtremes).thenReply(Empty.getDefaultInstance());
     }
 
 
+    @Override
+    public Effect<Empty> registerData(WeatherStationExtremesState currentState, AddToAggregationCommand command) {
+        if (!command.getWeatherdata().getTemperaturesList().isEmpty()){
+            logger.info("registering Temperature " + command.getWeatherdata().getTemperaturesList());
+            return aggregateTemperature(command.getWeatherdata(), currentState);
+        } else if (!command.getWeatherdata().getWindspeedsList().isEmpty()){
+            logger.info("registering windspeed " + command.getWeatherdata().getWindspeedsList());
+            //TODO: implement this
+            return effects().reply(Empty.getDefaultInstance());
+        }else {
+            logger.info("registering station: nothing to aggregate");
+            return effects().reply(Empty.getDefaultInstance());
+        }
+    }
+
+    @Override
+    public WeatherStationExtremesState emptyState() {
+        return WeatherStationExtremesState.getDefaultInstance();
+    }
 }

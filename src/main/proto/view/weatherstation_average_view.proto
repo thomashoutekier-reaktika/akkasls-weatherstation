@@ -5,6 +5,7 @@ import "akkaserverless/annotations.proto";
 import "google/api/annotations.proto";
 import "domain/weatherstation_domain.proto";
 
+option java_outer_classname = "WeatherStationAverageViewModel";
 
 message StationByIdRequest {
   string station_id = 1;
@@ -23,6 +24,9 @@ message WeatherStationOverallAverageState {
 
 
 service WeatherStationOverallAverage {
+  option (akkaserverless.service) = {
+    type: SERVICE_TYPE_VIEW
+  };
   rpc ProcessStationRegistered(be.reaktika.weatherstation.domain.StationRegistered) returns (WeatherStationOverallAverageState) {
     option (akkaserverless.method).eventing.in = {
       event_sourced_entity: "weatherstation"

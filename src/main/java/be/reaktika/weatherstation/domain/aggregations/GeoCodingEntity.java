@@ -1,15 +1,10 @@
 package be.reaktika.weatherstation.domain.aggregations;
 
-import be.reaktika.weatherstation.domain.WeatherStationPublish;
-import be.reaktika.weatherstation.domain.aggregations.WeatherStationAggregation.AddToAggregationCommand;
 import be.reaktika.weatherstation.domain.aggregations.WeatherStationAggregation.AggregationType;
-import be.reaktika.weatherstation.domain.aggregations.WeatherStationAggregation.TemperatureMeasurement;
+
 import be.reaktika.weatherstation.domain.geocoding.WeatherstationGeocoding;
 import com.akkaserverless.javasdk.*;
-import com.akkaserverless.javasdk.valueentity.CommandContext;
-import com.akkaserverless.javasdk.valueentity.CommandHandler;
-import com.akkaserverless.javasdk.valueentity.ValueEntity;
-import com.google.protobuf.Empty;
+
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import org.slf4j.Logger;
@@ -19,7 +14,7 @@ import org.slf4j.LoggerFactory;
  * finds the country for a registered weatherstation.
  * Converts measurements (per station_id) to CountryMeasurements (per country)
  */
-@ValueEntity(entityType = "geocodingentity")
+
 public class GeoCodingEntity {
 
     private static final Logger logger = LoggerFactory.getLogger(GeoCodingEntity.class);
@@ -28,7 +23,7 @@ public class GeoCodingEntity {
 
     private final ServiceCallRef<WeatherstationGeocoding.CountryMeasurements> measurementsPublisher;
 
-    public GeoCodingEntity(@EntityId String type, Context ctx){
+    public GeoCodingEntity(String type, Context ctx){
         Config config = ConfigFactory.load();
         this.type = AggregationType.valueOf(type);
         logger.info("creating GeoCodingEntity with env " + System.getenv("OPENCAGE_API_KEY"));
@@ -41,8 +36,8 @@ public class GeoCodingEntity {
     }
 
 
+/*
 
-    @CommandHandler
     public Reply<Empty> registerData(AddToAggregationCommand command, CommandContext<WeatherstationGeocoding.GeoCodingState> ctx) {
         if (command.getWeatherdata().getTemperaturesList().isEmpty() && command.getWeatherdata().getWindspeedsList().isEmpty()){
             return stationRegistered(command.getWeatherdata(), ctx);
@@ -81,6 +76,8 @@ public class GeoCodingEntity {
 
 
 
+
+
     private Reply<Empty> processTemperatureAdded(WeatherStationPublish.WeatherStationData data, CommandContext<WeatherstationGeocoding.GeoCodingState> ctx){
         logger.info("temperature added for " + data + " with state " + ctx.getState());
         var state = ctx.getState().orElse(WeatherstationGeocoding.GeoCodingState.getDefaultInstance());
@@ -111,4 +108,6 @@ public class GeoCodingEntity {
         return Reply.forward(measurementsPublisher.createCall(WeatherstationGeocoding.CountryMeasurements.getDefaultInstance()));
     }
 
+
+ */
 }

@@ -5,15 +5,15 @@ import be.reaktika.weatherstation.domain.WeatherStationPublish.WeatherStationDat
 import be.reaktika.weatherstation.domain.WeatherStationPublish.WeatherStationTemperatures;
 import be.reaktika.weatherstation.domain.WeatherStationPublish.WeatherStationWindspeeds;
 import com.akkaserverless.javasdk.action.Action;
-import com.akkaserverless.javasdk.action.Handler;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@Action
+
 public class WeatherStationDataPublishAction {
 
     private final Logger logger = LoggerFactory.getLogger(WeatherStationDataPublishAction.class);
-
+/*
     @Handler
     public WeatherStationData publishStationRegistered(WeatherStationDomain.StationRegistered event){
         logger.info("publishing registered station to topic");
@@ -62,4 +62,6 @@ public class WeatherStationDataPublishAction {
         return data;
     }
 
+
+ */
 }

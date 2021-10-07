@@ -23,7 +23,7 @@ public class ExtremesEntityTest {
         Mockito.reset(factoryMock);
         Mockito.when(context.serviceCallFactory()).thenReturn(factoryMock);
     }
-
+/*
     @Test
     public void registerStation(){
         entity = new ExtremesEntity(WeatherStationAggregation.AggregationType.EXTREMES.name());
@@ -126,4 +126,6 @@ public class ExtremesEntityTest {
 
 
     }
+
+ */
 }

@@ -1,20 +1,17 @@
 package be.reaktika.weatherstation.view;
 
-import be.reaktika.weatherstation.domain.WeatherStationDomain;
-import be.reaktika.weatherstation.view.WeatherstationAverageView.WeatherStationOverallAverageState;
-import com.akkaserverless.javasdk.view.UpdateHandler;
-import com.akkaserverless.javasdk.view.View;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 
-@View
+
 public class WeatherStationAverageViewImpl {
 
     private final Logger logger = LoggerFactory.getLogger(WeatherStationAverageViewImpl.class);
 
-    @UpdateHandler
+/*
     public WeatherStationOverallAverageState processStationRegistered(WeatherStationDomain.StationRegistered event, Optional<WeatherStationOverallAverageState> state) {
         logger.info("processStationRegistered with event " + event + " on state " + state);
         WeatherStationOverallAverageState.Builder stateBuilder;
@@ -33,7 +30,7 @@ public class WeatherStationAverageViewImpl {
     }
 
 
-    @UpdateHandler
+
     public WeatherStationOverallAverageState processTemperatureAdded(WeatherStationDomain.TemperaturesCelciusAdded event, Optional<WeatherStationOverallAverageState> state) {
         logger.info("processTemperatureAdded with event " + event + " on state " + state);
         WeatherStationOverallAverageState.Builder stateBuilder;
@@ -58,7 +55,7 @@ public class WeatherStationAverageViewImpl {
     }
 
 
-    @UpdateHandler
+
     public WeatherStationOverallAverageState processWindspeedAdded(WeatherStationDomain.WindspeedsAdded event, Optional<WeatherStationOverallAverageState> state) {
         logger.info("processWindspeedAdded with event " + event + " on state " + state);
         WeatherStationOverallAverageState.Builder stateBuilder;
@@ -81,4 +78,6 @@ public class WeatherStationAverageViewImpl {
                 .setNumberOfWindMeasurements(currentNumber);
         return stateBuilder.build();
     }
+
+ */
 }

@@ -2,15 +2,11 @@ package be.reaktika.weatherstation.domain;
 
 import be.reaktika.weatherstation.domain.WeatherStationDomain.*;
 import com.akkaserverless.javasdk.Context;
-import com.akkaserverless.javasdk.EntityId;
-import com.akkaserverless.javasdk.Reply;
-import com.akkaserverless.javasdk.eventsourcedentity.*;
-import com.google.protobuf.Empty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /** An event sourced entity. */
-@EventSourcedEntity(entityType = "weatherstation")
+
 public class WeatherStationEntity {
 
     @SuppressWarnings("unused")
@@ -24,11 +20,11 @@ public class WeatherStationEntity {
     public static final double MAX_LON_ABS = 180.;
 
 
-    public WeatherStationEntity(@EntityId String entityId, Context ctx) {
+    public WeatherStationEntity(String entityId, Context ctx) {
         this.entityId = entityId;
     }
 
-    @Snapshot
+
     public WeatherStationDomain.WeatherStationState snapshot() {
         return WeatherStationState
                 .newBuilder()
@@ -39,13 +35,13 @@ public class WeatherStationEntity {
                 .build();
     }
 
-    @SnapshotHandler
+
     public void handleSnapshot(WeatherStationState snapshot) {
         this.latitude = snapshot.getLatitude();
         this.longitude = snapshot.getLongitude();
     }
 
-    @CommandHandler
+/*
     protected Reply<Empty> registerStation(StationRegistrationCommand command, CommandContext ctx) {
         logger.info("registering station " + command);
         if (Math.abs(command.getLatitude()) > MAX_LAT_ABS || Math.abs(command.getLongitude()) > MAX_LON_ABS){
@@ -63,7 +59,7 @@ public class WeatherStationEntity {
         return Reply.message(Empty.getDefaultInstance());
     }
 
-    @CommandHandler
+
     protected Reply<Empty> publishTemperatureReport(StationTemperatureCommand command, CommandContext ctx) {
         logger.info("publishing temperature " + command);
         var eventBuilder = TemperaturesCelciusAdded.newBuilder()
@@ -80,7 +76,7 @@ public class WeatherStationEntity {
 
     }
 
-    @CommandHandler
+
     protected Reply<Empty> publishWindspeedReport(StationWindspeedCommand command, CommandContext ctx) {
         logger.info("publishing windspeed " + command);
         var eventBuilder = WindspeedsAdded.newBuilder().setStationId(command.getStationId());
@@ -97,7 +93,9 @@ public class WeatherStationEntity {
 
     }
 
-    @EventHandler
+
+ */
+
     public void stationRegistered(StationRegistered event) {
         this.name = event.getStationName();
         this.latitude = event.getLatitude();
@@ -105,13 +103,13 @@ public class WeatherStationEntity {
         logger.info("station registered");
     }
 
-    @EventHandler
+
     public void temperaturesCelciusAdded(TemperaturesCelciusAdded event) {
         logger.info("temperatures added " + event);
 
     }
 
-    @EventHandler
+
     public void windspeedsAdded(WindspeedsAdded event) {
         logger.info("windspeeds added " + event);
 

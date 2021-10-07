@@ -6,10 +6,14 @@ import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 import "domain/aggregations/weatherstation_extremes.proto";
 
+option java_outer_classname = "WeatherStationExtremesViewModel";
 
 service WeatherStationExtremes {
+  option (akkaserverless.service) = {
+    type: SERVICE_TYPE_VIEW
+  };
 
-  rpc UpdateAggregations(be.reaktika.weatherstation.domain.aggregations.WeatherStationExtremes) returns (be.reaktika.weatherstation.domain.aggregations.WeatherStationExtremes) {
+  rpc UpdateAggregations(be.reaktika.weatherstation.domain.aggregations.WeatherStationExtremesState) returns (be.reaktika.weatherstation.domain.aggregations.WeatherStationExtremesState) {
     option (akkaserverless.method).eventing.in = {
       value_entity: "weatherstationextremes"
     };
@@ -20,7 +24,7 @@ service WeatherStationExtremes {
   }
 
 
-  rpc GetAggregations(google.protobuf.Empty) returns (stream be.reaktika.weatherstation.domain.aggregations.WeatherStationExtremes) {
+  rpc GetAggregations(google.protobuf.Empty) returns (stream be.reaktika.weatherstation.domain.aggregations.WeatherStationExtremesState) {
     option (akkaserverless.method).view.query = {
       query: "SELECT * from extremes_view"
     };
