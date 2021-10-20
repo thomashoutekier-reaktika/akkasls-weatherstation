@@ -1,6 +1,7 @@
 package be.reaktika.weatherstation;
 
 
+import be.reaktika.weatherstation.api.WeatherStationApiAction;
 import be.reaktika.weatherstation.domain.WeatherStation;
 import be.reaktika.weatherstation.domain.aggregations.*;
 
@@ -61,6 +62,7 @@ public final class Main {
                 GeoCoding::new,
                 WeatherStation::new,
                 WeatherStationExtremes::new,
+                WeatherStationApiAction::new,
                 WeatherStationExtremesView::new,
                 WeatherStationOverallAverageView::new);
 
