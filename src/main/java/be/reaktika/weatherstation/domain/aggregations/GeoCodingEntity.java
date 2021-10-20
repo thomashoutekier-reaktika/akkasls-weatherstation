@@ -31,7 +31,7 @@ public class GeoCodingEntity {
         logger.info("key " + api_key);
         measurementsPublisher = ctx.serviceCallFactory()
                 .lookup("be.reaktika.weatherstation.domain.geocoding.publishing.GeoCodingPublishService",
-                        "PublishMeasurements",
+                        "publishMeasurements",
                         WeatherstationGeocoding.CountryMeasurements.class);
     }
 

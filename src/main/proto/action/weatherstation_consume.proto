@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-package be.reaktika.weatherstation.domain;
+package be.reaktika.weatherstation.action;
 
 import "action/weatherstation_publish.proto";
 import "google/protobuf/empty.proto";
@@ -9,7 +9,10 @@ import "akkaserverless/annotations.proto";
 option java_outer_classname = "WeatherStationDataConsume";
 
 
-service WeatherStationConsumeService {
+service WeatherStationDataConsumeService {
+    option (akkaserverless.service) = {
+        type : SERVICE_TYPE_ACTION
+    };
     rpc DispatchWeatherStationData(be.reaktika.weatherstation.action.WeatherStationData) returns (google.protobuf.Empty){
         option (akkaserverless.method).eventing.in = {
             topic: "weatherstation_data"

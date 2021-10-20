@@ -1,6 +1,5 @@
 package be.reaktika.weatherstation.domain.aggregations;
 
-import be.reaktika.weatherstation.domain.WeatherStationPublish;
 import be.reaktika.weatherstation.domain.geocoding.WeatherstationGeocoding;
 import com.akkaserverless.javasdk.ServiceCallFactory;
 import com.akkaserverless.javasdk.ServiceCallRef;

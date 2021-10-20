@@ -25,7 +25,7 @@ public class GeoCoding extends AbstractGeoCoding {
   public GeoCoding(ValueEntityContext context) {
     this.entityId = context.entityId();
     measurementsPublisher = context.serviceCallFactory()
-            .lookup("be.reaktika.weatherstation.domain.geocoding.publishing.GeoCodingPublishService",
+            .lookup("be.reaktika.weatherstation.action.geocoding.GeoCodingPublishService",
                     "PublishMeasurements",
                     WeatherstationGeocoding.CountryMeasurements.class);
   }
@@ -37,6 +37,7 @@ public class GeoCoding extends AbstractGeoCoding {
 
   @Override
   public Effect<Empty> registerData(WeatherstationGeocoding.GeoCodingState currentState, WeatherStationAggregation.AddToAggregationCommand command) {
+    logger.info("registering weatherstation data " + command);
     if (command.getWeatherdata().getTemperaturesList().isEmpty() && command.getWeatherdata().getWindspeedsList().isEmpty()){
       return stationRegistered(command.getWeatherdata(), currentState);
     }
@@ -49,23 +50,24 @@ public class GeoCoding extends AbstractGeoCoding {
   private Effect<Empty> stationRegistered(WeatherStationData data, WeatherstationGeocoding.GeoCodingState currentState){
     logger.info("station registered: reverse geocoding the location to find the country");
 
-    var reply = effects().reply(Empty.getDefaultInstance());
     var country = GeoCodingService.getInstance().getCountryCode(data.getLatitude(), data.getLongitude());
 
     logger.info("registered " + data.getStationId() + " in country " + country);
-    country.ifPresent(c -> {
+    var reply = country.map(c -> {
       logger.info("updating state: " + data.getStationId() + "-> " + c);
       var stateBuilder = WeatherstationGeocoding.GeoCodingState.newBuilder(currentState);
       stateBuilder.putStationIdToCountry(data.getStationId(), c);
-      effects().updateState(stateBuilder.build());
-
       var toPublish = WeatherstationGeocoding.CountryMeasurements
               .newBuilder().setCountry(c);
-      reply.addSideEffects(SideEffect.of(measurementsPublisher.createCall(toPublish.build())));
+      logger.info("publishing " + toPublish + " to topic");
+      return effects()
+              .updateState(stateBuilder.build())
+              .thenReply(Empty.getDefaultInstance())
+              .addSideEffects(SideEffect.of(measurementsPublisher.createCall(toPublish.build())));
+
     });
 
-
-    return reply;
+    return reply.orElse(effects().reply(Empty.getDefaultInstance()));
   }
 
   private Effect<Empty> processTemperatureAdded(WeatherStationData data, WeatherstationGeocoding.GeoCodingState currentState){

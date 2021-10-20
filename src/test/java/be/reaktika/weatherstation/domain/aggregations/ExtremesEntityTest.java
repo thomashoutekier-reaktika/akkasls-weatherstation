@@ -1,6 +1,5 @@
 package be.reaktika.weatherstation.domain.aggregations;
 
-import be.reaktika.weatherstation.domain.WeatherStationPublish;
 import com.akkaserverless.javasdk.ServiceCallFactory;
 import com.akkaserverless.javasdk.valueentity.CommandContext;
 import com.google.protobuf.Timestamp;

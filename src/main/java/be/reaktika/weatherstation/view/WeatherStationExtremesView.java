@@ -6,20 +6,22 @@ package be.reaktika.weatherstation.view;
 
 import be.reaktika.weatherstation.domain.aggregations.WeatherStationExtremesAggregation;
 import com.akkaserverless.javasdk.view.ViewContext;
-import com.google.protobuf.Empty;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class WeatherStationExtremesView extends AbstractWeatherStationExtremesView {
+
+  private final static Logger logger = LoggerFactory.getLogger(WeatherStationExtremesView.class);
 
   public WeatherStationExtremesView(ViewContext context) {}
 
   @Override
   public WeatherStationExtremesAggregation.WeatherStationExtremesState emptyState() {
-    throw new UnsupportedOperationException("Not implemented yet, replace with your empty view state");
+    return WeatherStationExtremesAggregation.WeatherStationExtremesState.getDefaultInstance();
   }
 
   @Override
-  public UpdateEffect<WeatherStationExtremesAggregation.WeatherStationExtremesState> updateAggregations(
-    WeatherStationExtremesAggregation.WeatherStationExtremesState state, WeatherStationExtremesAggregation.WeatherStationExtremesState weatherStationExtremesState) {
-    throw new UnsupportedOperationException("Update handler for 'UpdateAggregations' not implemented yet");
+  public UpdateEffect<WeatherStationExtremesAggregation.WeatherStationExtremesState> updateAggregations(WeatherStationExtremesAggregation.WeatherStationExtremesState currentState, WeatherStationExtremesAggregation.WeatherStationExtremesState event) {
+    return effects().updateState(event);
   }
 }

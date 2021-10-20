@@ -4,7 +4,6 @@
  */
 package be.reaktika.weatherstation.domain.aggregations;
 
-import be.reaktika.weatherstation.domain.WeatherStationPublish;
 import com.akkaserverless.javasdk.testkit.ValueEntityResult;
 import com.akkaserverless.javasdk.valueentity.ValueEntity;
 import com.google.protobuf.Empty;
