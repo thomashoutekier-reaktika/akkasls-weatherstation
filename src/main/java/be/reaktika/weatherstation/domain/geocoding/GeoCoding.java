@@ -4,7 +4,7 @@
  */
 package be.reaktika.weatherstation.domain.geocoding;
 
-import be.reaktika.weatherstation.domain.WeatherStationPublish;
+import be.reaktika.weatherstation.action.WeatherStationToTopic.*;
 import be.reaktika.weatherstation.domain.aggregations.GeoCodingService;
 import be.reaktika.weatherstation.domain.aggregations.WeatherStationAggregation;
 import com.akkaserverless.javasdk.ServiceCallRef;
@@ -46,7 +46,7 @@ public class GeoCoding extends AbstractGeoCoding {
     return processWindspeedAdded(command.getWeatherdata(), currentState);
   }
 
-  private Effect<Empty> stationRegistered(WeatherStationPublish.WeatherStationData data, WeatherstationGeocoding.GeoCodingState currentState){
+  private Effect<Empty> stationRegistered(WeatherStationData data, WeatherstationGeocoding.GeoCodingState currentState){
     logger.info("station registered: reverse geocoding the location to find the country");
 
     var reply = effects().reply(Empty.getDefaultInstance());
@@ -68,7 +68,7 @@ public class GeoCoding extends AbstractGeoCoding {
     return reply;
   }
 
-  private Effect<Empty> processTemperatureAdded(WeatherStationPublish.WeatherStationData data, WeatherstationGeocoding.GeoCodingState currentState){
+  private Effect<Empty> processTemperatureAdded(WeatherStationData data, WeatherstationGeocoding.GeoCodingState currentState){
     logger.info("temperature added for " + data + " with state " + currentState);
     var country = currentState.getStationIdToCountryOrDefault(data.getStationId(),"NONE");
     logger.info("country for " + data.getStationId() + " is " + country);
@@ -89,7 +89,7 @@ public class GeoCoding extends AbstractGeoCoding {
     }
   }
 
-  private Effect<Empty> processWindspeedAdded(WeatherStationPublish.WeatherStationData data, WeatherstationGeocoding.GeoCodingState currentState){
+  private Effect<Empty> processWindspeedAdded(WeatherStationData data, WeatherstationGeocoding.GeoCodingState currentState){
     logger.info("windspeeds added for " + data + " with state " + currentState);
     return effects().forward(measurementsPublisher.createCall(WeatherstationGeocoding.CountryMeasurements.getDefaultInstance()));
   }

@@ -1,13 +1,13 @@
 syntax = "proto3";
 
-package be.reaktika.weatherstation.domain;
+package be.reaktika.weatherstation.action;
 
 import "domain/weatherstation_domain.proto";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
 import "akkaserverless/annotations.proto";
 
-option java_outer_classname = "WeatherStationPublish";
+option java_outer_classname = "WeatherStationToTopic";
 
 message WeatherStationData {
     string station_id = 1;
@@ -28,7 +28,10 @@ message WeatherStationWindspeeds {
     float windspeed_m_per_s = 2;
 }
 
-service WeatherStationPublishService {
+service WeatherStationToTopicService {
+    option (akkaserverless.service) = {
+        type : SERVICE_TYPE_ACTION
+    };
     rpc PublishStationRegistered(be.reaktika.weatherstation.domain.StationRegistered) returns (WeatherStationData){
         option (akkaserverless.method).eventing = {
             in: {

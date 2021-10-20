@@ -1,6 +1,7 @@
 package be.reaktika.weatherstation;
 
 
+import be.reaktika.weatherstation.action.WeatherStationToTopicServiceAction;
 import be.reaktika.weatherstation.api.WeatherStationApiAction;
 import be.reaktika.weatherstation.domain.WeatherStation;
 import be.reaktika.weatherstation.domain.aggregations.*;
@@ -64,7 +65,8 @@ public final class Main {
                 WeatherStationExtremes::new,
                 WeatherStationApiAction::new,
                 WeatherStationExtremesView::new,
-                WeatherStationOverallAverageView::new);
+                WeatherStationOverallAverageView::new,
+                WeatherStationToTopicServiceAction::new);
 
     }
 

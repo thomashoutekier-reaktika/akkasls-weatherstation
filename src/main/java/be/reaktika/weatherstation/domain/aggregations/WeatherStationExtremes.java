@@ -4,7 +4,8 @@
  */
 package be.reaktika.weatherstation.domain.aggregations;
 
-import be.reaktika.weatherstation.domain.WeatherStationPublish;
+import be.reaktika.weatherstation.action.WeatherStationToTopic.*;
+import be.reaktika.weatherstation.action.WeatherStationToTopicServiceAction;
 import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
 import com.google.protobuf.Empty;
 import org.slf4j.Logger;
@@ -43,15 +44,15 @@ public class WeatherStationExtremes extends AbstractWeatherStationExtremes {
     }
   }
 
-  private Effect<Empty> aggregateTemperature(WeatherStationPublish.WeatherStationData weatherdata, WeatherStationExtremesAggregation.WeatherStationExtremesState currentExtremes) {
+  private Effect<Empty> aggregateTemperature(WeatherStationData weatherdata, WeatherStationExtremesAggregation.WeatherStationExtremesState currentExtremes) {
     WeatherStationExtremesAggregation.WeatherStationExtremesState.Builder newExtremesBuilder = WeatherStationExtremesAggregation.WeatherStationExtremesState.newBuilder(currentExtremes);
 
     var sorted = weatherdata.getTemperaturesList()
             .stream()
-            .sorted(Comparator.comparingDouble(WeatherStationPublish.WeatherStationTemperatures::getTemperatureCelcius))
+            .sorted(Comparator.comparingDouble(WeatherStationTemperatures::getTemperatureCelcius))
             .collect(Collectors.toList());
-    WeatherStationPublish.WeatherStationTemperatures highestEvent = sorted.get(sorted.size()-1);
-    WeatherStationPublish.WeatherStationTemperatures lowestEvent = sorted.get(0);
+    WeatherStationTemperatures highestEvent = sorted.get(sorted.size()-1);
+    WeatherStationTemperatures lowestEvent = sorted.get(0);
 
     WeatherStationAggregation.TemperatureMeasurement highestInEvent = WeatherStationAggregation.TemperatureMeasurement.newBuilder()
             .setMeasuredTemperature(highestEvent.getTemperatureCelcius())

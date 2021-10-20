@@ -1,6 +1,5 @@
 package be.reaktika.weatherstation.actions;
 
-import be.reaktika.weatherstation.domain.WeatherStationPublish;
 import be.reaktika.weatherstation.domain.aggregations.WeatherStationAggregation.AddToAggregationCommand;
 import be.reaktika.weatherstation.domain.aggregations.WeatherStationAggregation.AggregationType;
 import be.reaktika.weatherstation.domain.aggregations.WeatherStationExtremesAggregation;
