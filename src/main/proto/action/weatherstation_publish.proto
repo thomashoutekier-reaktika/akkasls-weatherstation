@@ -2,12 +2,14 @@ syntax = "proto3";
 
 package be.reaktika.weatherstation.action;
 
+option java_outer_classname = "WeatherStationToTopic";
+
 import "domain/weatherstation_domain.proto";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
 import "akkaserverless/annotations.proto";
 
-option java_outer_classname = "WeatherStationToTopic";
+
 
 message WeatherStationData {
     string station_id = 1;
@@ -35,10 +37,10 @@ service WeatherStationToTopicService {
     rpc PublishStationRegistered(be.reaktika.weatherstation.domain.StationRegistered) returns (WeatherStationData){
         option (akkaserverless.method).eventing = {
             in: {
-                event_sourced_entity: "weatherstation";
+                event_sourced_entity: "weatherstation"
             }
             out: {
-                topic: "weatherstation_data";
+                topic: "weatherstation_data"
             }
         };
     };
@@ -46,20 +48,20 @@ service WeatherStationToTopicService {
     rpc PublishTemperatureRegistered(be.reaktika.weatherstation.domain.TemperaturesCelciusAdded) returns (WeatherStationData) {
         option (akkaserverless.method).eventing = {
             in: {
-                event_sourced_entity: "weatherstation";
+                event_sourced_entity: "weatherstation"
             }
             out: {
-                topic: "weatherstation_data";
+                topic: "weatherstation_data"
             }
         };
     }
     rpc PublishWindspeedRegistered(be.reaktika.weatherstation.domain.WindspeedsAdded) returns (WeatherStationData){
         option (akkaserverless.method).eventing = {
             in: {
-                event_sourced_entity: "weatherstation";
+                event_sourced_entity: "weatherstation"
             }
             out: {
-                topic: "weatherstation_data";
+                topic: "weatherstation_data"
             }
         };
     }

@@ -1,12 +1,15 @@
 package be.reaktika.weatherstation.domain;
 
-import be.reaktika.weatherstation.domain.WeatherStationDomain.*;
+import be.reaktika.weatherstation.domain.WeatherStationDomain.StationRegistered;
+import be.reaktika.weatherstation.domain.WeatherStationDomain.TemperaturesCelciusAdded;
+import be.reaktika.weatherstation.domain.WeatherStationDomain.WeatherStationState;
+import be.reaktika.weatherstation.domain.WeatherStationDomain.WindspeedsAdded;
 import com.akkaserverless.javasdk.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /** An event sourced entity. */
-
+@Deprecated
 public class WeatherStationEntity {
 
     @SuppressWarnings("unused")

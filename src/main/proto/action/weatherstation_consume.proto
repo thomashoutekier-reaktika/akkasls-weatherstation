@@ -2,11 +2,11 @@ syntax = "proto3";
 
 package be.reaktika.weatherstation.action;
 
+option java_outer_classname = "WeatherStationDataConsume";
+
 import "action/weatherstation_publish.proto";
 import "google/protobuf/empty.proto";
 import "akkaserverless/annotations.proto";
-
-option java_outer_classname = "WeatherStationDataConsume";
 
 
 service WeatherStationDataConsumeService {

@@ -7,14 +7,13 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 
-
+@Deprecated
 public class WeatherStationExtremesViewImpl {
 
     private final static Logger logger = LoggerFactory.getLogger(WeatherStationExtremesViewImpl.class);
 
 
     public WeatherStationExtremes updateAggregations(WeatherStationExtremes update, Optional<WeatherStationExtremes> state){
-        logger.info("updating extremes view ");
-        return update;
+        throw new IllegalStateException("not implemented");
     }
 }

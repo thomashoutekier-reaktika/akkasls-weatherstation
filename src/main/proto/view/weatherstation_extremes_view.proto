@@ -1,12 +1,14 @@
 syntax = "proto3";
 
 package be.reaktika.weatherstation.view;
+
+option java_outer_classname = "WeatherStationExtremesViewModel";
+
 import "akkaserverless/annotations.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 import "domain/aggregations/weatherstation_extremes.proto";
 
-option java_outer_classname = "WeatherStationExtremesViewModel";
 
 service WeatherStationExtremes {
   option (akkaserverless.service) = {

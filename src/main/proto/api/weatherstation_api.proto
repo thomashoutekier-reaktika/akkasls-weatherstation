@@ -1,13 +1,14 @@
 syntax = "proto3";
 
+package be.reaktika.weatherstation.api;
+
+option java_outer_classname = "WeatherStationService";
+
 import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 import "akkaserverless/annotations.proto";
 import "google/api/annotations.proto";
 
-package be.reaktika.weatherstation.api;
-
-option java_outer_classname = "WeatherStationService";
 
 message StationRegistrationRequest {
     string station_id = 1;

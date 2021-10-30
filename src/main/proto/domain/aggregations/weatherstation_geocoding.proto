@@ -1,11 +1,11 @@
 syntax = "proto3";
+package be.reaktika.weatherstation.domain.geocoding;
+
+option java_outer_classname = "GeoCodingModel";
 
 import "domain/aggregations/weatherstation_aggregations.proto";
 import "google/protobuf/empty.proto";
 import "akkaserverless/annotations.proto";
-
-
-package be.reaktika.weatherstation.domain.geocoding;
 
 option (akkaserverless.file).value_entity = {
   name: "GeoCoding"

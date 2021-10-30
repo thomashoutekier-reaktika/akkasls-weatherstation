@@ -4,11 +4,13 @@
  */
 package be.reaktika.weatherstation.domain.geocoding;
 
-import be.reaktika.weatherstation.action.WeatherStationToTopic.*;
+import be.reaktika.weatherstation.action.WeatherStationToTopic.WeatherStationData;
+import be.reaktika.weatherstation.action.geocoding.GeoCodingPublishService;
 import be.reaktika.weatherstation.domain.aggregations.GeoCodingService;
 import be.reaktika.weatherstation.domain.aggregations.WeatherStationAggregation;
 import com.akkaserverless.javasdk.ServiceCallRef;
 import com.akkaserverless.javasdk.SideEffect;
+import com.akkaserverless.javasdk.impl.GrpcClients;
 import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
 import com.google.protobuf.Empty;
 import org.slf4j.Logger;
@@ -19,24 +21,32 @@ public class GeoCoding extends AbstractGeoCoding {
   @SuppressWarnings("unused")
   private static final Logger logger = LoggerFactory.getLogger(GeoCoding.class);
   private final String entityId;
-  private final ServiceCallRef<WeatherstationGeocoding.CountryMeasurements> measurementsPublisher;
+  //private final ServiceCallRef<GeoCodingModel.CountryMeasurements> geocodingPublisher;
+  private final GeoCodingPublishService geoCodingPublishService;
 
 
   public GeoCoding(ValueEntityContext context) {
     this.entityId = context.entityId();
-    measurementsPublisher = context.serviceCallFactory()
+    var system = context.materializer().system();
+    geoCodingPublishService = new GrpcClients(system.systemImpl()).getGrpcClient(GeoCodingPublishService.class,
+            "localhost",9000);
+    /*
+    cfr. https://discuss.lightbend.com/t/publishing-to-a-topic-from-an-action-fails-silently/8965/1
+    geocodingPublisher = context.serviceCallFactory()
             .lookup("be.reaktika.weatherstation.action.geocoding.GeoCodingPublishService",
                     "PublishMeasurements",
-                    WeatherstationGeocoding.CountryMeasurements.class);
+                    GeoCodingModel.CountryMeasurements.class);
+
+     */
   }
 
   @Override
-  public WeatherstationGeocoding.GeoCodingState emptyState() {
-    return WeatherstationGeocoding.GeoCodingState.getDefaultInstance();
+  public GeoCodingModel.GeoCodingState emptyState() {
+    return GeoCodingModel.GeoCodingState.getDefaultInstance();
   }
 
   @Override
-  public Effect<Empty> registerData(WeatherstationGeocoding.GeoCodingState currentState, WeatherStationAggregation.AddToAggregationCommand command) {
+  public Effect<Empty> registerData(GeoCodingModel.GeoCodingState currentState, WeatherStationAggregation.AddToAggregationCommand command) {
     logger.info("registering weatherstation data " + command);
     if (command.getWeatherdata().getTemperaturesList().isEmpty() && command.getWeatherdata().getWindspeedsList().isEmpty()){
       return stationRegistered(command.getWeatherdata(), currentState);
@@ -47,34 +57,39 @@ public class GeoCoding extends AbstractGeoCoding {
     return processWindspeedAdded(command.getWeatherdata(), currentState);
   }
 
-  private Effect<Empty> stationRegistered(WeatherStationData data, WeatherstationGeocoding.GeoCodingState currentState){
+  private Effect<Empty> stationRegistered(WeatherStationData data, GeoCodingModel.GeoCodingState currentState){
     logger.info("station registered: reverse geocoding the location to find the country");
-
     var country = GeoCodingService.getInstance().getCountryCode(data.getLatitude(), data.getLongitude());
 
     logger.info("registered " + data.getStationId() + " in country " + country);
-    var reply = country.map(c -> {
+    if(country.isPresent()) {
+      var c = country.get();
       logger.info("updating state: " + data.getStationId() + "-> " + c);
-      var stateBuilder = WeatherstationGeocoding.GeoCodingState.newBuilder(currentState);
+      var stateBuilder = GeoCodingModel.GeoCodingState.newBuilder(currentState);
       stateBuilder.putStationIdToCountry(data.getStationId(), c);
-      var toPublish = WeatherstationGeocoding.CountryMeasurements
+      var toPublish = GeoCodingModel.CountryMeasurements
               .newBuilder().setCountry(c);
       logger.info("publishing " + toPublish + " to topic");
+      geoCodingPublishService.publishMeasurements(toPublish.build()).toCompletableFuture().thenAccept(d -> {
+        logger.info("done publishing CountryMeasurements to topic");
+      });
+      logger.info("updating state");
       return effects()
               .updateState(stateBuilder.build())
-              .thenReply(Empty.getDefaultInstance())
-              .addSideEffects(SideEffect.of(measurementsPublisher.createCall(toPublish.build())));
+              .thenReply(Empty.getDefaultInstance());
+              //.addSideEffects(SideEffect.of(geocodingPublisher.createCall(toPublish.build())));
+    }else {
+      logger.info("empty reply");
+      return effects().reply(Empty.getDefaultInstance());
+    }
 
-    });
-
-    return reply.orElse(effects().reply(Empty.getDefaultInstance()));
   }
 
-  private Effect<Empty> processTemperatureAdded(WeatherStationData data, WeatherstationGeocoding.GeoCodingState currentState){
+  private Effect<Empty> processTemperatureAdded(WeatherStationData data, GeoCodingModel.GeoCodingState currentState){
     logger.info("temperature added for " + data + " with state " + currentState);
     var country = currentState.getStationIdToCountryOrDefault(data.getStationId(),"NONE");
     logger.info("country for " + data.getStationId() + " is " + country);
-    var builder = WeatherstationGeocoding.CountryMeasurements.newBuilder();
+    var builder = GeoCodingModel.CountryMeasurements.newBuilder();
     builder.setCountry(country);
     if (!country.equals("NONE")) {
       data.getTemperaturesList().forEach(t -> {
@@ -84,15 +99,26 @@ public class GeoCoding extends AbstractGeoCoding {
                 .setMeasurementTime(t.getMeasurementTime()));
       });
       logger.info("forwarding temperatures for country " + country);
-      return effects().forward(measurementsPublisher.createCall(builder.build()));
+      logger.info("publishing to topic");
+      geoCodingPublishService.publishMeasurements(builder.build()).toCompletableFuture().thenAccept(d -> {
+        logger.info("DONE");
+      });
+      return effects()
+              .reply(Empty.getDefaultInstance());
+              //.addSideEffects(SideEffect.of(geocodingPublisher.createCall(builder.build())));
     } else {
       logger.warn("no country found for station " + data.getStationId());
       return effects().reply(Empty.getDefaultInstance());
     }
   }
 
-  private Effect<Empty> processWindspeedAdded(WeatherStationData data, WeatherstationGeocoding.GeoCodingState currentState){
+  private Effect<Empty> processWindspeedAdded(WeatherStationData data, GeoCodingModel.GeoCodingState currentState){
     logger.info("windspeeds added for " + data + " with state " + currentState);
-    return effects().forward(measurementsPublisher.createCall(WeatherstationGeocoding.CountryMeasurements.getDefaultInstance()));
+    //TODO: implement this
+    logger.warn("Not yet implemented");
+    return effects()
+            .reply(Empty.getDefaultInstance());
+            //.addSideEffects(SideEffect.of(geocodingPublisher.createCall(GeoCodingModel.CountryMeasurements.getDefaultInstance())));
   }
+
 }

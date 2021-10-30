@@ -1,17 +1,12 @@
 package be.reaktika.weatherstation.actions;
 
 import be.reaktika.weatherstation.domain.aggregations.WeatherStationAggregation.AddToAggregationCommand;
-import be.reaktika.weatherstation.domain.aggregations.WeatherStationAggregation.AggregationType;
-import be.reaktika.weatherstation.domain.aggregations.WeatherStationExtremesAggregation;
 import com.akkaserverless.javasdk.Context;
-
 import com.akkaserverless.javasdk.ServiceCallRef;
-
-import com.google.protobuf.Empty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
+@Deprecated
 public class WeatherStationDataConsumeAction {
     private final Logger logger = LoggerFactory.getLogger(WeatherStationDataConsumeAction.class);
 

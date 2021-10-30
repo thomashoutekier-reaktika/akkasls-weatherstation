@@ -4,13 +4,7 @@
  */
 package be.reaktika.weatherstation.domain.aggregations;
 
-import com.akkaserverless.javasdk.testkit.ValueEntityResult;
-import com.akkaserverless.javasdk.valueentity.ValueEntity;
-import com.google.protobuf.Empty;
 import org.junit.Test;
-import org.mockito.Mockito;
-
-import static org.junit.Assert.*;
 
 public class WeatherStationExtremesTest {
 

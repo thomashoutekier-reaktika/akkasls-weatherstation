@@ -2,14 +2,8 @@ package be.reaktika.weatherstation.domain.aggregations;
 
 import com.akkaserverless.javasdk.ServiceCallFactory;
 import com.akkaserverless.javasdk.valueentity.CommandContext;
-import com.google.protobuf.Timestamp;
-import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
-
-import java.util.Optional;
 
 public class ExtremesEntityTest {
     private CommandContext context = Mockito.mock(CommandContext.class);

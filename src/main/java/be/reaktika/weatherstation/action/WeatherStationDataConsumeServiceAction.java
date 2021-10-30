@@ -1,6 +1,5 @@
 package be.reaktika.weatherstation.action;
 
-import be.reaktika.weatherstation.actions.WeatherStationDataConsumeAction;
 import be.reaktika.weatherstation.domain.aggregations.WeatherStationAggregation;
 import com.akkaserverless.javasdk.ServiceCallRef;
 import com.akkaserverless.javasdk.SideEffect;

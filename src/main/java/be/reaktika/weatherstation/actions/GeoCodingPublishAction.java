@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 /**
  * publishes measurements per country to a topic
  */
-
+@Deprecated
 public class GeoCodingPublishAction {
 
     private static final Logger logger = LoggerFactory.getLogger(GeoCodingPublishAction.class);

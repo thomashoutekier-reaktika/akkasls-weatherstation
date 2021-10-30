@@ -1,13 +1,9 @@
 package be.reaktika.weatherstation.actions;
 
-import be.reaktika.weatherstation.domain.WeatherStationDomain;
-
-import com.akkaserverless.javasdk.action.Action;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
+@Deprecated
 public class WeatherStationDataPublishAction {
 
     private final Logger logger = LoggerFactory.getLogger(WeatherStationDataPublishAction.class);

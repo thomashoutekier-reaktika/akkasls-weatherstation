@@ -1,9 +1,11 @@
 package be.reaktika.weatherstation.action.geocoding;
 
-import be.reaktika.weatherstation.domain.geocoding.WeatherstationGeocoding;
+import be.reaktika.weatherstation.domain.geocoding.GeoCodingModel;
 import com.akkaserverless.javasdk.action.ActionCreationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.stream.Collectors;
 
 // This class was initially generated based on the .proto definition by Akka Serverless tooling.
 //
@@ -12,15 +14,34 @@ import org.slf4j.LoggerFactory;
 
 /** An action. */
 public class GeoCodingPublishServiceAction extends AbstractGeoCodingPublishServiceAction {
-
-  private static final Logger logger = LoggerFactory.getLogger(GeoCodingPublishServiceAction.class);
-
-  public GeoCodingPublishServiceAction(ActionCreationContext creationContext) {}
+  private final Logger logger = LoggerFactory.getLogger(GeoCodingPublishServiceAction.class);
+  public GeoCodingPublishServiceAction(ActionCreationContext creationContext) {
+  }
 
   /** Handler for "PublishMeasurements". */
   @Override
-  public Effect<WeatherstationGeocoding.CountryMeasurements> publishMeasurements(WeatherstationGeocoding.CountryMeasurements measurements) {
-    logger.info("publishing measurements " + measurements);
-    return effects().reply(measurements);
+  public Effect<GeoCodingDataPublish.CountryData> publishMeasurements(GeoCodingModel.CountryMeasurements countryMeasurements) {
+    logger.info("publisher received measurements");
+
+    var builder = GeoCodingDataPublish.CountryData.newBuilder()
+            .setCountry(countryMeasurements.getCountry());
+
+    countryMeasurements.getTemperaturesList().stream()
+            .map(t -> GeoCodingDataPublish.TemperatureData.newBuilder()
+                    .setMeasuredTemperature(t.getMeasuredTemperature())
+                    .setMeasurementTime(t.getMeasurementTime())
+                    .build()
+            )
+            .forEach(d -> builder.addTemperatures(d));
+    countryMeasurements.getWindspeedsList().stream()
+            .map(s -> GeoCodingDataPublish.WindspeedData.newBuilder()
+                    .setMeasuredWindspeed(s.getMeasuredWindspeed())
+                    .setMeasurementTime(s.getMeasurementTime())
+                    .build()
+            )
+            .forEach(d -> builder.addWindspeeds(d));
+    var toPublish = builder.build();
+    logger.info("publishing " + toPublish);
+    return effects().reply(toPublish);
   }
 }

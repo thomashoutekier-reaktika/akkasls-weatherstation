@@ -1,8 +1,12 @@
 package be.reaktika.weatherstation.domain.aggregations;
 
-import be.reaktika.weatherstation.domain.aggregations.WeatherStationExtremesAggregation.*;
-import be.reaktika.weatherstation.domain.aggregations.WeatherStationAggregation.*;
-import be.reaktika.weatherstation.action.WeatherStationToTopic.*;
+import be.reaktika.weatherstation.action.WeatherStationToTopic.WeatherStationData;
+import be.reaktika.weatherstation.action.WeatherStationToTopic.WeatherStationTemperatures;
+import be.reaktika.weatherstation.domain.aggregations.WeatherStationAggregation.AddToAggregationCommand;
+import be.reaktika.weatherstation.domain.aggregations.WeatherStationAggregation.AggregationType;
+import be.reaktika.weatherstation.domain.aggregations.WeatherStationAggregation.TemperatureMeasurement;
+import be.reaktika.weatherstation.domain.aggregations.WeatherStationExtremesAggregation.TemperatureRecord;
+import be.reaktika.weatherstation.domain.aggregations.WeatherStationExtremesAggregation.WeatherStationExtremesState;
 import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
 import com.google.protobuf.Empty;
 import org.slf4j.Logger;
@@ -10,8 +14,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Comparator;
 import java.util.stream.Collectors;
-
-public class ExtremesEntity extends AbstractWeatherStationExtremes{
+@Deprecated
+public class ExtremesEntity {
 
     private final static Logger logger = LoggerFactory.getLogger(ExtremesEntity.class);
     private final AggregationType type;
@@ -21,7 +25,7 @@ public class ExtremesEntity extends AbstractWeatherStationExtremes{
         this.type = AggregationType.valueOf(context.entityId());
     }
 
-
+/*
     private Effect<Empty> aggregateTemperature(WeatherStationData weatherdata, WeatherStationExtremesState currentExtremes) {
         WeatherStationExtremesState.Builder newExtremesBuilder = WeatherStationExtremesState.newBuilder(currentExtremes);
 
@@ -92,4 +96,6 @@ public class ExtremesEntity extends AbstractWeatherStationExtremes{
     public WeatherStationExtremesState emptyState() {
         return WeatherStationExtremesState.getDefaultInstance();
     }
+
+ */
 }

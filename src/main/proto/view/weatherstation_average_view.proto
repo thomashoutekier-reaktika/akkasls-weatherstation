@@ -1,11 +1,11 @@
 syntax = "proto3";
 
+option java_outer_classname = "WeatherStationAverageViewModel";
+
 package be.reaktika.weatherstation.view;
 import "akkaserverless/annotations.proto";
 import "google/api/annotations.proto";
 import "domain/weatherstation_domain.proto";
-
-option java_outer_classname = "WeatherStationAverageViewModel";
 
 message StationByIdRequest {
   string station_id = 1;

@@ -4,8 +4,8 @@
  */
 package be.reaktika.weatherstation.domain.aggregations;
 
-import be.reaktika.weatherstation.action.WeatherStationToTopic.*;
-import be.reaktika.weatherstation.action.WeatherStationToTopicServiceAction;
+import be.reaktika.weatherstation.action.WeatherStationToTopic.WeatherStationData;
+import be.reaktika.weatherstation.action.WeatherStationToTopic.WeatherStationTemperatures;
 import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
 import com.google.protobuf.Empty;
 import org.slf4j.Logger;
@@ -82,7 +82,7 @@ public class WeatherStationExtremes extends AbstractWeatherStationExtremes {
       logger.info("high temperature record is broken");
       newExtremesBuilder.setMaxTemperature(WeatherStationExtremesAggregation.TemperatureRecord.newBuilder()
               .setCurrent(highestInEvent)
-              .setPreviousRecord(previousMinRecord.getCurrent()));
+              .setPreviousRecord(previousMaxRecord.getCurrent()));
     }
     if(lowestInEvent.getMeasuredTemperature() < previousMinRecord.getCurrent().getMeasuredTemperature()){
       logger.info("low temperature record is broken");
@@ -91,6 +91,8 @@ public class WeatherStationExtremes extends AbstractWeatherStationExtremes {
               .setPreviousRecord(previousMinRecord.getCurrent()));
     }
     var newExtremes = newExtremesBuilder.build();
-    return effects().updateState(newExtremes).thenReply(Empty.getDefaultInstance());
+    return effects()
+            .updateState(newExtremes)
+            .thenReply(Empty.getDefaultInstance());
   }
 }

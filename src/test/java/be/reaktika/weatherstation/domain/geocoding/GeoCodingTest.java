@@ -4,19 +4,13 @@
  */
 package be.reaktika.weatherstation.domain.geocoding;
 
-import be.reaktika.weatherstation.domain.aggregations.WeatherStationAggregation;
-import com.akkaserverless.javasdk.testkit.ValueEntityResult;
-import com.akkaserverless.javasdk.valueentity.ValueEntity;
-import com.google.protobuf.Empty;
 import org.junit.Test;
-
-import static org.junit.Assert.*;
 
 public class GeoCodingTest {
 
   @Test
   public void exampleTest() {
-    GeoCodingTestKit testKit = GeoCodingTestKit.of(GeoCoding::new);
+    //GeoCodingTestKit testKit = GeoCodingTestKit.of(GeoCoding::new);
     // use the testkit to execute a command
     // of events emitted, or a final updated state:
     // ValueEntityResult<SomeResponse> result = testKit.someOperation(SomeRequest);
@@ -29,7 +23,7 @@ public class GeoCodingTest {
 
   @Test
   public void registerDataTest() {
-    GeoCodingTestKit testKit = GeoCodingTestKit.of(GeoCoding::new);
+    //GeoCodingTestKit testKit = GeoCodingTestKit.of(GeoCoding::new);
     // ValueEntityResult<Empty> result = testKit.registerData(AddToAggregationCommand.newBuilder()...build());
   }
 

@@ -4,9 +4,7 @@ package be.reaktika.weatherstation.view;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Optional;
-
-
+@Deprecated
 public class WeatherStationAverageViewImpl {
 
     private final Logger logger = LoggerFactory.getLogger(WeatherStationAverageViewImpl.class);

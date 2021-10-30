@@ -1,12 +1,6 @@
 package be.reaktika.weatherstation.domain.aggregations;
 
-import be.reaktika.weatherstation.domain.aggregations.WeatherStationAggregation.AggregationType;
-
-import be.reaktika.weatherstation.domain.geocoding.WeatherstationGeocoding;
-import com.akkaserverless.javasdk.*;
-
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
+import com.akkaserverless.javasdk.Context;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,16 +8,17 @@ import org.slf4j.LoggerFactory;
  * finds the country for a registered weatherstation.
  * Converts measurements (per station_id) to CountryMeasurements (per country)
  */
-
+@Deprecated
 public class GeoCodingEntity {
 
     private static final Logger logger = LoggerFactory.getLogger(GeoCodingEntity.class);
-    private final AggregationType type;
-    private final String api_key;
+    //private final AggregationType type;
+    //private final String api_key;
 
-    private final ServiceCallRef<WeatherstationGeocoding.CountryMeasurements> measurementsPublisher;
+    //private final ServiceCallRef<WeatherstationGeocoding.CountryMeasurements> measurementsPublisher;
 
     public GeoCodingEntity(String type, Context ctx){
+        /*
         Config config = ConfigFactory.load();
         this.type = AggregationType.valueOf(type);
         logger.info("creating GeoCodingEntity with env " + System.getenv("OPENCAGE_API_KEY"));
@@ -33,6 +28,8 @@ public class GeoCodingEntity {
                 .lookup("be.reaktika.weatherstation.domain.geocoding.publishing.GeoCodingPublishService",
                         "publishMeasurements",
                         WeatherstationGeocoding.CountryMeasurements.class);
+
+         */
     }
 
 
