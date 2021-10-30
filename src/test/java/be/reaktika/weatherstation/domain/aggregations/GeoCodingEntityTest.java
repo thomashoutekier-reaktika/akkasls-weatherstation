@@ -14,7 +14,7 @@ public class GeoCodingEntityTest {
     private CommandContext context = Mockito.mock(CommandContext.class);
     private ServiceCallFactory factoryMock = Mockito.mock(ServiceCallFactory.class);
     //private ServiceCallRef<WeatherstationGeocoding.CountryMeasurements> measurementsPublisher = Mockito.mock(ServiceCallRef.class);
-    private GeoCodingEntity entity;
+    //private GeoCodingEntity entity;
 /*
 
     @Before

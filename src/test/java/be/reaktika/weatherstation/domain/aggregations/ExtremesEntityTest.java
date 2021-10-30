@@ -8,7 +8,7 @@ import org.mockito.Mockito;
 public class ExtremesEntityTest {
     private CommandContext context = Mockito.mock(CommandContext.class);
     private ServiceCallFactory factoryMock = Mockito.mock(ServiceCallFactory.class);
-    private ExtremesEntity entity;
+    //private ExtremesEntity entity;
 
     @Before
     public void init(){

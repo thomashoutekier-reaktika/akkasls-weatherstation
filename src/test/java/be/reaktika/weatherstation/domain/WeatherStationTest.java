@@ -1,35 +1,30 @@
 package be.reaktika.weatherstation.domain;
 
+import be.reaktika.weatherstation.domain.aggregations.WeatherStationExtremes;
+import be.reaktika.weatherstation.domain.aggregations.WeatherStationExtremesTestKit;
 import com.akkaserverless.javasdk.eventsourcedentity.CommandContext;
+import org.junit.Test;
 import org.mockito.Mockito;
+
+import static org.junit.Assert.assertEquals;
 
 
 public class WeatherStationTest {
-    private String entityId = "entityId1";
-    private WeatherStationEntity entity;
-    private CommandContext context = Mockito.mock(CommandContext.class);
 
-/*
     @Test
     public void registerStationTest() {
-        entity = new WeatherStationEntity(entityId, context);
-
-        entity.registerStation(WeatherStationDomain.StationRegistrationCommand.newBuilder()
+        WeatherStationTestKit testKit = WeatherStationTestKit.of(WeatherStation::new);
+        var command = WeatherStationDomain.StationRegistrationCommand.newBuilder()
                 .setStationId("stationId")
                 .setStationName("name")
                 .setLatitude(10)
-                .setLongitude(20)
-                .build(), context);
+                .setLongitude(20).build();
+        testKit.registerStation(command);
 
-        WeatherStationDomain.StationRegistered event = WeatherStationDomain.StationRegistered.newBuilder()
-                .setStationId("stationId")
-                .setStationName("name")
-                .setLatitude(10)
-                .setLongitude(20)
-                .build();
-        Mockito.verify(context).emit(event);
+        assertEquals("stationId",((WeatherStationDomain.StationRegistered)testKit.getAllEvents().get(0)).getStationId());
+
     }
-    
+   /*
     @Test
     public void publishTemperatureReportTest() {
         entity = new WeatherStationEntity(entityId, context);
@@ -83,5 +78,7 @@ public class WeatherStationTest {
         Mockito.verify(context).emit(event);
     }
 
- */
+    */
+
+
 }
