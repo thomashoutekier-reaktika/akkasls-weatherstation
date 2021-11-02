@@ -4,25 +4,25 @@
 
   <groupId>be.reaktika</groupId>
   <artifactId>reactive-weather</artifactId>
-  <version>1.6-SNAPSHOT</version>
+  <version>1.7-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>reactive-weather</name>
     <properties>
 
-    <!-- TODO Update to your own Docker repository or Docker Hub scope -->
-    <dockerImage>thomashoutekier83/${project.artifactId}</dockerImage>
-    <dockerTag>${project.version}</dockerTag>
-    <mainClass>be.reaktika.weatherstation.Main</mainClass>
+      <!-- TODO Update to your own Docker repository or Docker Hub scope -->
+      <dockerImage>thomashoutekier83/${project.artifactId}</dockerImage>
+      <dockerTag>${project.version}</dockerTag>
+      <mainClass>be.reaktika.weatherstation.Main</mainClass>
 
-    <jdk.target>11</jdk.target>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+      <jdk.target>11</jdk.target>
+      <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-    <akkaserverless-sdk.version>0.7.0-beta.10</akkaserverless-sdk.version>
-    <akka-grpc.version>1.1.1</akka-grpc.version>
-    <akka-streams.version>2.6.14</akka-streams.version>
-    <scala.binary.version>2.13</scala.binary.version>
-    <jackson-version>2.9.7</jackson-version>
+      <akkaserverless-sdk.version>0.9.0</akkaserverless-sdk.version>
+      <akka-grpc.version>2.1.0</akka-grpc.version>
+      <akka-streams.version>2.6.14</akka-streams.version>
+      <scala.binary.version>2.13</scala.binary.version>
+      <jackson-version>2.9.7</jackson-version>
   </properties>
 
   <build>
@@ -52,6 +52,9 @@
         <configuration>
           <source>${jdk.target}</source>
           <target>${jdk.target}</target>
+          <compilerArgs>
+            <arg>-Xlint:deprecation</arg>
+          </compilerArgs>
         </configuration>
       </plugin>
 
@@ -71,22 +74,7 @@
               <includeSourceInfoInDescriptorSet>true</includeSourceInfoInDescriptorSet>
               <descriptorSetFileName>user-function.desc</descriptorSetFileName>
               <checkStaleness>true</checkStaleness>
-              <protocArtifact>com.google.protobuf:protoc:3.9.1:exe:${os.detected.classifier}</protocArtifact>
-            </configuration>
-          </execution>
-          <execution>
-            <!-- generate a gRPC client (with Akka gRPC) for integration testing -->
-            <id>grpc-client</id>
-            <goals>
-              <goal>test-compile</goal>
-            </goals>
-            <configuration>
-              <writeDescriptorSet>true</writeDescriptorSet>
-              <includeSourceInfoInDescriptorSet>true</includeSourceInfoInDescriptorSet>
-              <protoTestSourceRoot>src/main/proto</protoTestSourceRoot>
-              <descriptorSetFileName>user-function-test.desc</descriptorSetFileName>
-              <checkStaleness>true</checkStaleness>
-              <protocArtifact>com.google.protobuf:protoc:3.9.1:exe:${os.detected.classifier}</protocArtifact>
+              <protocArtifact>com.google.protobuf:protoc:3.11.4:exe:${os.detected.classifier}</protocArtifact>
               <protocPlugins>
                 <protocPlugin>
                   <id>akka-grpc</id>
@@ -187,13 +175,57 @@
         <executions>
           <execution>
             <goals>
-              <goal>java</goal>
+              <goal>exec</goal>
             </goals>
           </execution>
         </executions>
         <configuration>
-          <mainClass>${mainClass}</mainClass>
+          <executable>java</executable>
+          <arguments>
+            <argument>-classpath</argument>
+            <classpath/>
+            <argument>${mainClass}</argument>
+          </arguments>
+          <environmentVariables>
+            <!-- needed for the proxy to access the user function on all platforms -->
+            <HOST>0.0.0.0</HOST>
+          </environmentVariables>
         </configuration>
+      </plugin>
+
+      <plugin>
+        <!-- configure src/it/java and src/it/resources -->
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>build-helper-maven-plugin</artifactId>
+        <version>3.2.0</version>
+        <executions>
+          <execution>
+            <id>add-integration-test-source</id>
+            <phase>generate-test-sources</phase>
+            <goals>
+              <goal>add-test-source</goal>
+            </goals>
+            <configuration>
+              <sources>
+                <source>src/it/java</source>
+              </sources>
+            </configuration>
+          </execution>
+          <execution>
+            <id>add-integration-test-resource</id>
+            <phase>generate-test-resources</phase>
+            <goals>
+              <goal>add-test-resource</goal>
+            </goals>
+            <configuration>
+              <resources>
+                <resource>
+                  <directory>src/it/resources</directory>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
 
       <plugin>
@@ -209,9 +241,9 @@
       </plugin>
 
       <plugin>
-        <groupId>com.lightbend</groupId>
-        <artifactId>akkasls-maven-plugin</artifactId>
-        <version>0.31.0</version>
+        <groupId>com.akkaserverless</groupId>
+        <artifactId>akkaserverless-maven-plugin</artifactId>
+        <version>${akkaserverless-sdk.version}</version>
         <executions>
           <execution>
             <goals>
@@ -246,41 +278,6 @@
       <build>
         <plugins>
           <plugin>
-            <!-- configure src/it/java and src/it/resources -->
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>build-helper-maven-plugin</artifactId>
-            <version>3.2.0</version>
-            <executions>
-              <execution>
-                <id>add-integration-test-source</id>
-                <phase>generate-test-sources</phase>
-                <goals>
-                  <goal>add-test-source</goal>
-                </goals>
-                <configuration>
-                  <sources>
-                    <source>src/it/java</source>
-                  </sources>
-                </configuration>
-              </execution>
-              <execution>
-                <id>add-integration-test-resource</id>
-                <phase>generate-test-resources</phase>
-                <goals>
-                  <goal>add-test-resource</goal>
-                </goals>
-                <configuration>
-                  <resources>
-                    <resource>
-                      <directory>src/it/resources</directory>
-                    </resource>
-                  </resources>
-                </configuration>
-              </execution>
-            </executions>
-          </plugin>
-
-          <plugin>
             <!-- run *IntegrationTest with failsafe -->
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-failsafe-plugin</artifactId>
@@ -303,29 +300,6 @@
       </build>
     </profile>
   </profiles>
-
-  <repositories>
-    <repository>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-      <id>lightbend-akkaserverless</id>
-      <name>repo-lightbend-com-akkaserverless</name>
-      <url>https://repo.lightbend.com/lightbend/akkaserverless/</url>
-    </repository>
-  </repositories>
-
-  <pluginRepositories>
-    <pluginRepository>
-      <snapshots>
-        <enabled>false</enabled>
-      </snapshots>
-      <id>lightbend-akkaserverless</id>
-      <name>repo-lightbend-com-akkaserverless</name>
-      <url>https://repo.lightbend.com/lightbend/akkaserverless/</url>
-    </pluginRepository>
-  </pluginRepositories>
-
   <dependencyManagement>
     <dependencies>
       <dependency>
@@ -337,7 +311,6 @@
       </dependency>
     </dependencies>
   </dependencyManagement>
-
   <dependencies>
     <dependency>
       <groupId>com.akkaserverless</groupId>

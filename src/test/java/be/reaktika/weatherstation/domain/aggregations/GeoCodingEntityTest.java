@@ -1,15 +1,10 @@
 package be.reaktika.weatherstation.domain.aggregations;
 
-import be.reaktika.weatherstation.domain.WeatherStationPublish;
-import be.reaktika.weatherstation.domain.geocoding.WeatherstationGeocoding;
+
 import com.akkaserverless.javasdk.ServiceCallFactory;
 import com.akkaserverless.javasdk.ServiceCallRef;
 import com.akkaserverless.javasdk.valueentity.CommandContext;
-import com.google.protobuf.Timestamp;
-import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 
 import java.util.Optional;
@@ -18,9 +13,9 @@ public class GeoCodingEntityTest {
 
     private CommandContext context = Mockito.mock(CommandContext.class);
     private ServiceCallFactory factoryMock = Mockito.mock(ServiceCallFactory.class);
-    private ServiceCallRef<WeatherstationGeocoding.CountryMeasurements> measurementsPublisher = Mockito.mock(ServiceCallRef.class);
-    private GeoCodingEntity entity;
-
+    //private ServiceCallRef<WeatherstationGeocoding.CountryMeasurements> measurementsPublisher = Mockito.mock(ServiceCallRef.class);
+    //private GeoCodingEntity entity;
+/*
 
     @Before
     public void init(){
@@ -39,6 +34,8 @@ public class GeoCodingEntityTest {
         });
     }
 
+ */
+/*
     @Test
     public void stationRegistrationShouldGeoCodeLocation(){
         entity = new GeoCodingEntity(WeatherStationAggregation.AggregationType.COUNTRY.name(),context);
@@ -90,5 +87,7 @@ public class GeoCodingEntityTest {
         Assert.assertEquals("be",argumentCaptor.getValue().getCountry());
 
     }
+
+ */
 
 }
