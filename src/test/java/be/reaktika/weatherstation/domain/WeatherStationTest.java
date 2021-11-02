@@ -1,10 +1,7 @@
 package be.reaktika.weatherstation.domain;
 
-import be.reaktika.weatherstation.domain.aggregations.WeatherStationExtremes;
-import be.reaktika.weatherstation.domain.aggregations.WeatherStationExtremesTestKit;
-import com.akkaserverless.javasdk.eventsourcedentity.CommandContext;
+import com.google.protobuf.Timestamp;
 import org.junit.Test;
-import org.mockito.Mockito;
 
 import static org.junit.Assert.assertEquals;
 
@@ -19,25 +16,29 @@ public class WeatherStationTest {
                 .setStationName("name")
                 .setLatitude(10)
                 .setLongitude(20).build();
-        testKit.registerStation(command);
+        var registerStationResult = testKit.registerStation(command);
 
-        assertEquals("stationId",((WeatherStationDomain.StationRegistered)testKit.getAllEvents().get(0)).getStationId());
+        var event = registerStationResult.getNextEventOfType(WeatherStationDomain.StationRegistered.class);
+
+        assertEquals("stationId",event.getStationId());
+        assertEquals("stationId",testKit.getState().getStationId());
+        assertEquals("name", testKit.getState().getStationName());
 
     }
-   /*
+
     @Test
     public void publishTemperatureReportTest() {
-        entity = new WeatherStationEntity(entityId, context);
+        WeatherStationTestKit testKit = WeatherStationTestKit.of(WeatherStation::new);
 
         var command = WeatherStationDomain.StationTemperatureCommand.newBuilder()
                 .setStationId("stationId")
                     .addTempMeasurements(WeatherStationDomain.TemperatureMeasurements.newBuilder().setTemperatureCelcius(10).setMeasurementTime(Timestamp.newBuilder().build()))
                     .addTempMeasurements(WeatherStationDomain.TemperatureMeasurements.newBuilder().setTemperatureCelcius(20).setMeasurementTime(Timestamp.newBuilder().build()))
                 .build();
-        entity.publishTemperatureReport(command, context);
+        var result = testKit.publishTemperatureReport(command);
 
 
-        WeatherStationDomain.TemperaturesCelciusAdded event = WeatherStationDomain.TemperaturesCelciusAdded.newBuilder()
+        WeatherStationDomain.TemperaturesCelciusAdded expected = WeatherStationDomain.TemperaturesCelciusAdded.newBuilder()
                     .setStationId("stationId")
                 .addTemperature(WeatherStationDomain.Temperature.newBuilder()
                         .setTemperatureCelcius(10)
@@ -46,16 +47,20 @@ public class WeatherStationTest {
                         .setTemperatureCelcius(20)
                         .setMeasurementTime(Timestamp.newBuilder().build()).build())
                 .build();
-
-        Mockito.verify(context).emit(event);
+        var event = result.getNextEventOfType(WeatherStationDomain.TemperaturesCelciusAdded.class);
+        assertEquals(expected.getStationId(), event.getStationId());
+        assertEquals(expected.getTemperatureCount(), event.getTemperatureCount());
+        assertEquals(expected.getTemperatureList().get(0).getTemperatureCelcius(),event.getTemperatureList().get(0).getTemperatureCelcius(), 0.001);
+        assertEquals(expected.getTemperatureList().get(0).getMeasurementTime(),event.getTemperatureList().get(0).getMeasurementTime());
+        assertEquals(expected.getTemperatureList().get(1).getTemperatureCelcius(),event.getTemperatureList().get(1).getTemperatureCelcius(), 0.001);
 
     }
-    
+
     @Test
     public void publishWindspeedReportTest() {
-        entity = new WeatherStationEntity(entityId, context);
+        WeatherStationTestKit testKit = WeatherStationTestKit.of(WeatherStation::new);
 
-        entity.publishWindspeedReport(WeatherStationDomain.StationWindspeedCommand.newBuilder()
+        var result = testKit.publishWindspeedReport(WeatherStationDomain.StationWindspeedCommand.newBuilder()
                 .setStationId("stationId")
                 .addWindspeedMeasurements(WeatherStationDomain.WindspeedMeasurement.newBuilder()
                         .setWindspeedMPerS(10)
@@ -63,9 +68,11 @@ public class WeatherStationTest {
                 .addWindspeedMeasurements(WeatherStationDomain.WindspeedMeasurement.newBuilder()
                         .setWindspeedMPerS(20)
                         .setMeasurementTime(Timestamp.newBuilder().build()).build())
-                .build(), context);
+                .build());
 
-        WeatherStationDomain.WindspeedsAdded event = WeatherStationDomain.WindspeedsAdded.newBuilder()
+        var event = result.getNextEventOfType(WeatherStationDomain.WindspeedsAdded.class);
+
+        WeatherStationDomain.WindspeedsAdded expected = WeatherStationDomain.WindspeedsAdded.newBuilder()
                 .setStationId("stationId")
                 .addWindspeed(WeatherStationDomain.Windspeed.newBuilder()
                         .setWindspeedMPerS(10)
@@ -75,10 +82,11 @@ public class WeatherStationTest {
                         .setMeasurementTime(Timestamp.newBuilder().build()).build())
                 .build();
         
-        Mockito.verify(context).emit(event);
+        assertEquals(expected.getStationId(), expected.getStationId());
+        assertEquals(expected.getWindspeedList().get(0).getWindspeedMPerS(), expected.getWindspeed(0).getWindspeedMPerS(), 0.001);
+        assertEquals(expected.getWindspeedList().get(0).getMeasurementTime(), expected.getWindspeed(0).getMeasurementTime());
+        assertEquals(expected.getWindspeedList().get(1).getWindspeedMPerS(), expected.getWindspeed(1).getWindspeedMPerS(), 0.001);
+        assertEquals(expected.getWindspeedList().get(1).getMeasurementTime(), expected.getWindspeed(1).getMeasurementTime());
     }
-
-    */
-
 
 }
