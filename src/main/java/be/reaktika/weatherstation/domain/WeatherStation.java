@@ -20,9 +20,6 @@ public class WeatherStation extends AbstractWeatherStation {
 
   @SuppressWarnings("unused")
   private final String entityId;
-  private String name = "unknown";
-  private double latitude = 0;
-  private double longitude = 0;
 
   public WeatherStation(EventSourcedEntityContext context) {
     this.entityId = context.entityId();
