@@ -1,9 +1,14 @@
 package be.reaktika.weatherstation.domain.aggregations;
 
+import be.reaktika.weatherstation.action.WeatherStationToTopic;
 import com.akkaserverless.javasdk.ServiceCallFactory;
 import com.akkaserverless.javasdk.valueentity.CommandContext;
+import com.google.protobuf.Timestamp;
 import org.junit.Before;
+import org.junit.Test;
 import org.mockito.Mockito;
+
+import static org.junit.Assert.assertEquals;
 
 public class ExtremesEntityTest {
     private CommandContext context = Mockito.mock(CommandContext.class);
@@ -16,11 +21,12 @@ public class ExtremesEntityTest {
         Mockito.reset(factoryMock);
         Mockito.when(context.serviceCallFactory()).thenReturn(factoryMock);
     }
-/*
+
     @Test
     public void registerStation(){
-        entity = new ExtremesEntity(WeatherStationAggregation.AggregationType.EXTREMES.name());
-        var data = WeatherStationPublish.WeatherStationData.newBuilder()
+        var testkit = WeatherStationExtremesTestKit.of(WeatherStationExtremes::new);
+
+        var data = WeatherStationToTopic.WeatherStationData.newBuilder()
                 .setStationId("id1")
                 .setStationName("name1")
                 .setLongitude(2.)
@@ -29,26 +35,27 @@ public class ExtremesEntityTest {
         var command = WeatherStationAggregation.AddToAggregationCommand.newBuilder()
                 .setWeatherdata(data)
                 .build();
-        entity.registerData(command,context);
-        Mockito.verify(context,Mockito.never()).getState();
-        Mockito.verify(context,Mockito.never()).updateState(Mockito.any(WeatherStationExtremesAggregation.WeatherStationExtremes.class));
+        var result = testkit.registerData(command);
+        assertEquals(testkit.getState().getMaxTemperature(), WeatherStationExtremesAggregation.TemperatureRecord.getDefaultInstance());
+        assertEquals(testkit.getState().getMaxTemperature(), WeatherStationExtremesAggregation.TemperatureRecord.getDefaultInstance());
     }
+
 
     @Test
     public void registerTemperatureOnEmptyState(){
-        entity = new ExtremesEntity(WeatherStationAggregation.AggregationType.EXTREMES.name());
-        var temp1 = WeatherStationPublish.WeatherStationTemperatures
+        var testkit = WeatherStationExtremesTestKit.of(WeatherStationExtremes::new);
+        var temp1 = WeatherStationToTopic.WeatherStationTemperatures
                 .newBuilder()
                 .setMeasurementTime(Timestamp.newBuilder().build())
                 .setTemperatureCelcius(10)
                 .build();
-        var temp2 = WeatherStationPublish.WeatherStationTemperatures
+        var temp2 = WeatherStationToTopic.WeatherStationTemperatures
                 .newBuilder()
                 .setMeasurementTime(Timestamp.newBuilder().build())
                 .setTemperatureCelcius(5)
                 .build();
 
-        var data1 = WeatherStationPublish.WeatherStationData.newBuilder()
+        var data1 = WeatherStationToTopic.WeatherStationData.newBuilder()
                 .setStationId("id1")
                 .addTemperatures(temp1)
                 .addTemperatures(temp2)
@@ -57,21 +64,19 @@ public class ExtremesEntityTest {
                 .setWeatherdata(data1)
                 .build();
 
-        var statecapture = ArgumentCaptor.forClass(WeatherStationExtremesAggregation.WeatherStationExtremes.class);
-        entity.registerData(command1,context);
-        Mockito.verify(context).updateState(statecapture.capture());
+        var result = testkit.registerData(command1);
 
-        Assert.assertEquals(10,statecapture.getValue().getMaxTemperature().getCurrent().getMeasuredTemperature(),0.001);
-        Assert.assertEquals(5,statecapture.getValue().getMinTemperature().getCurrent().getMeasuredTemperature(),0.001);
-        Assert.assertEquals("id1",statecapture.getValue().getMinTemperature().getCurrent().getStationId());
-        Assert.assertEquals("id1",statecapture.getValue().getMaxTemperature().getCurrent().getStationId());
+        assertEquals(10,testkit.getState().getMaxTemperature().getCurrent().getMeasuredTemperature(),0.001);
+        assertEquals(5,testkit.getState().getMinTemperature().getCurrent().getMeasuredTemperature(),0.001);
+        assertEquals("id1",testkit.getState().getMinTemperature().getCurrent().getStationId());
+        assertEquals("id1",testkit.getState().getMaxTemperature().getCurrent().getStationId());
 
 
     }
 
     @Test
     public void updateMaximumAndMinimum(){
-        entity = new ExtremesEntity(WeatherStationAggregation.AggregationType.EXTREMES.name());
+        var testkit = WeatherStationExtremesTestKit.of(WeatherStationExtremes::new);
         var max = WeatherStationAggregation.TemperatureMeasurement.newBuilder()
                 .setStationId("id1")
                 .setMeasuredTemperature(30.)
@@ -80,26 +85,20 @@ public class ExtremesEntityTest {
                 .setStationId("id1")
                 .setMeasuredTemperature(-10)
                 .build();
-        var currentExtremes = WeatherStationExtremesAggregation.WeatherStationExtremes
-                .newBuilder()
-                .setMaxTemperature(WeatherStationExtremesAggregation.TemperatureRecord.newBuilder().setCurrent(max))
-                .setMinTemperature(WeatherStationExtremesAggregation.TemperatureRecord.newBuilder().setCurrent(min))
-                .build();
 
-        Mockito.when(context.getState()).thenReturn(Optional.of(currentExtremes));
 
-        var temp1 = WeatherStationPublish.WeatherStationTemperatures
+        var temp1 = WeatherStationToTopic.WeatherStationTemperatures
                 .newBuilder()
                 .setMeasurementTime(Timestamp.newBuilder().build())
                 .setTemperatureCelcius(40)
                 .build();
-        var temp2 = WeatherStationPublish.WeatherStationTemperatures
+        var temp2 = WeatherStationToTopic.WeatherStationTemperatures
                 .newBuilder()
                 .setMeasurementTime(Timestamp.newBuilder().build())
                 .setTemperatureCelcius(-20)
                 .build();
 
-        var data = WeatherStationPublish.WeatherStationData.newBuilder()
+        var data = WeatherStationToTopic.WeatherStationData.newBuilder()
                 .setStationId("id2")
                 .addTemperatures(temp1)
                 .addTemperatures(temp2)
@@ -108,17 +107,14 @@ public class ExtremesEntityTest {
                 .setWeatherdata(data)
                 .build();
 
-        var statecapture = ArgumentCaptor.forClass(WeatherStationExtremesAggregation.WeatherStationExtremes.class);
-        entity.registerData(command,context);
-        Mockito.verify(context).updateState(statecapture.capture());
+        testkit.registerData(command);
 
-        Assert.assertEquals(40,statecapture.getValue().getMaxTemperature().getCurrent().getMeasuredTemperature(),0.001);
-        Assert.assertEquals(-20,statecapture.getValue().getMinTemperature().getCurrent().getMeasuredTemperature(),0.001);
-        Assert.assertEquals("id2",statecapture.getValue().getMaxTemperature().getCurrent().getStationId());
-        Assert.assertEquals("id2",statecapture.getValue().getMinTemperature().getCurrent().getStationId());
+        assertEquals(40,testkit.getState().getMaxTemperature().getCurrent().getMeasuredTemperature(),0.001);
+        assertEquals(-20,testkit.getState().getMinTemperature().getCurrent().getMeasuredTemperature(),0.001);
+        assertEquals("id2",testkit.getState().getMaxTemperature().getCurrent().getStationId());
+        assertEquals("id2",testkit.getState().getMinTemperature().getCurrent().getStationId());
 
 
     }
 
- */
 }

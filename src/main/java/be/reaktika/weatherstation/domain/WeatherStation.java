@@ -89,6 +89,7 @@ public class WeatherStation extends AbstractWeatherStation {
   public WeatherStationState stationRegistered(WeatherStationState currentState, StationRegistered event) {
     logger.info("station registered");
     var newState = WeatherStationState.newBuilder(currentState)
+            .setStationId(event.getStationId())
             .setStationName(event.getStationName())
             .setLatitude(event.getLatitude())
             .setLongitude(event.getLongitude());
