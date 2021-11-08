@@ -8,8 +8,6 @@ import be.reaktika.weatherstation.action.WeatherStationToTopic.WeatherStationDat
 import be.reaktika.weatherstation.action.geocoding.GeoCodingPublishService;
 import be.reaktika.weatherstation.domain.aggregations.GeoCodingService;
 import be.reaktika.weatherstation.domain.aggregations.WeatherStationAggregation;
-import com.akkaserverless.javasdk.ServiceCallRef;
-import com.akkaserverless.javasdk.SideEffect;
 import com.akkaserverless.javasdk.impl.GrpcClients;
 import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
 import com.google.protobuf.Empty;
@@ -29,7 +27,7 @@ public class GeoCoding extends AbstractGeoCoding {
     this.entityId = context.entityId();
     var system = context.materializer().system();
     geoCodingPublishService = new GrpcClients(system.systemImpl()).getGrpcClient(GeoCodingPublishService.class,
-            "localhost",9000);
+            "reactive-weather");
     /*
     cfr. https://discuss.lightbend.com/t/publishing-to-a-topic-from-an-action-fails-silently/8965/1
     geocodingPublisher = context.serviceCallFactory()

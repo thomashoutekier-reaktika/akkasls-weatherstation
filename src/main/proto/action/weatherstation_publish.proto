@@ -35,34 +35,28 @@ service WeatherStationToTopicService {
         type : SERVICE_TYPE_ACTION
     };
     rpc PublishStationRegistered(be.reaktika.weatherstation.domain.StationRegistered) returns (WeatherStationData){
-        option (akkaserverless.method).eventing = {
-            in: {
-                event_sourced_entity: "weatherstation"
-            }
-            out: {
-                topic: "weatherstation_data"
-            }
+        option (akkaserverless.method).eventing.in = {
+            event_sourced_entity: "weatherstation"
+        };
+        option (akkaserverless.method).eventing.out= {
+            topic: "weatherstation_data"
         };
     };
 
     rpc PublishTemperatureRegistered(be.reaktika.weatherstation.domain.TemperaturesCelciusAdded) returns (WeatherStationData) {
-        option (akkaserverless.method).eventing = {
-            in: {
-                event_sourced_entity: "weatherstation"
-            }
-            out: {
-                topic: "weatherstation_data"
-            }
+        option (akkaserverless.method).eventing.in = {
+            event_sourced_entity: "weatherstation"
+        };
+        option (akkaserverless.method).eventing.out= {
+            topic: "weatherstation_data"
         };
     }
     rpc PublishWindspeedRegistered(be.reaktika.weatherstation.domain.WindspeedsAdded) returns (WeatherStationData){
-        option (akkaserverless.method).eventing = {
-            in: {
-                event_sourced_entity: "weatherstation"
-            }
-            out: {
-                topic: "weatherstation_data"
-            }
+        option (akkaserverless.method).eventing.in = {
+            event_sourced_entity: "weatherstation"
+        };
+        option (akkaserverless.method).eventing.out= {
+            topic: "weatherstation_data"
         };
     }
 }

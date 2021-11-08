@@ -4,7 +4,7 @@
 
   <groupId>be.reaktika</groupId>
   <artifactId>reactive-weather</artifactId>
-  <version>1.7-SNAPSHOT</version>
+  <version>1.12.1-SNAPSHOT</version>
   <packaging>jar</packaging>
 
   <name>reactive-weather</name>
