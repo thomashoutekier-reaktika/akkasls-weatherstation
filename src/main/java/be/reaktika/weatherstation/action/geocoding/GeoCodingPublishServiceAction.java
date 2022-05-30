@@ -1,7 +1,7 @@
 package be.reaktika.weatherstation.action.geocoding;
 
 import be.reaktika.weatherstation.domain.geocoding.GeoCodingModel;
-import com.akkaserverless.javasdk.action.ActionCreationContext;
+import kalix.javasdk.action.ActionCreationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

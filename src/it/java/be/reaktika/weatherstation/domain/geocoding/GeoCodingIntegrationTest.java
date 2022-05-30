@@ -1,11 +1,15 @@
 package be.reaktika.weatherstation.domain.geocoding;
 
 import be.reaktika.weatherstation.Main;
+import be.reaktika.weatherstation.domain.aggregations.GeoCodingService;
 import be.reaktika.weatherstation.domain.aggregations.WeatherStationAggregation;
-import com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestKitResource;
-import com.google.protobuf.Empty;
+import kalix.javasdk.testkit.junit.KalixTestKitResource;
+import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.mockito.Mockito;
+
+import java.util.Optional;
 
 import static java.util.concurrent.TimeUnit.*;
 
@@ -22,8 +26,18 @@ public class GeoCodingIntegrationTest {
    * The test kit starts both the service container and the Akka Serverless proxy.
    */
   @ClassRule
-  public static final AkkaServerlessTestKitResource testKit =
-    new AkkaServerlessTestKitResource(Main.createAkkaServerless());
+  public static final KalixTestKitResource testKit =
+    new KalixTestKitResource(Main.createKalix());
+
+
+  private GeoCodingService geoCodingService = Mockito.mock(GeoCodingService.class);
+
+
+  @Before
+  public void init(){
+    Mockito.when(geoCodingService.getCountryCode(Mockito.anyDouble(), Mockito.anyDouble())).thenReturn(Optional.of("be"));
+    GeoCodingService.setInstance(geoCodingService);
+  }
 
   /**
    * Use the generated gRPC client to call the service through the Akka Serverless proxy.
@@ -37,7 +51,7 @@ public class GeoCodingIntegrationTest {
   @Test
   public void registerDataOnNonExistingEntity() throws Exception {
     // TODO: set fields in command, and provide assertions to match replies
-    // client.registerData(WeatherStationAggregation.AddToAggregationCommand.newBuilder().build())
-    //         .toCompletableFuture().get(5, SECONDS);
+    client.registerData(WeatherStationAggregation.AddToAggregationCommand.newBuilder().setType(WeatherStationAggregation.AggregationType.COUNTRY).build())
+            .toCompletableFuture().get(5, SECONDS);
   }
 }

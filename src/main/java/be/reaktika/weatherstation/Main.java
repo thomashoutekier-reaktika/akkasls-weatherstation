@@ -13,8 +13,8 @@ import be.reaktika.weatherstation.ports.OpenCageGeoCodingService;
 import be.reaktika.weatherstation.view.CountryAverageView;
 import be.reaktika.weatherstation.view.WeatherStationExtremesView;
 import be.reaktika.weatherstation.view.WeatherStationOverallAverageView;
-import com.akkaserverless.javasdk.AkkaServerless;
 import com.typesafe.config.ConfigFactory;
+import kalix.javasdk.Kalix;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,8 +24,8 @@ public final class Main {
 
     private static final Logger LOG = LoggerFactory.getLogger(Main.class);
 
-    public static AkkaServerless createAkkaServerless() {
-        return AkkaServerlessFactory.withComponents(
+    public static Kalix createKalix() {
+        return KalixFactory.withComponents(
                 GeoCoding::new,
                 WeatherStation::new,
                 WeatherStationExtremes::new,
@@ -47,6 +47,6 @@ public final class Main {
         GeoCodingService geoCoding = new OpenCageGeoCodingService(ConfigFactory.load());
         GeoCodingService.setInstance(geoCoding);
 
-        createAkkaServerless().start().toCompletableFuture().get();
+        createKalix().start().toCompletableFuture().get();
     }
 }

@@ -4,22 +4,22 @@ package be.reaktika.weatherstation.view;
 
 option java_outer_classname = "WeatherStationExtremesViewModel";
 
-import "akkaserverless/annotations.proto";
+import "kalix/annotations.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 import "domain/aggregations/weatherstation_extremes.proto";
 
 
 service WeatherStationExtremes {
-  option (akkaserverless.service) = {
-    type: SERVICE_TYPE_VIEW
+  option (kalix.codegen) = {
+    view: {}
   };
 
   rpc UpdateAggregations(be.reaktika.weatherstation.domain.aggregations.WeatherStationExtremesState) returns (be.reaktika.weatherstation.domain.aggregations.WeatherStationExtremesState) {
-    option (akkaserverless.method).eventing.in = {
+    option (kalix.method).eventing.in = {
       value_entity: "weatherstationextremes"
     };
-    option(akkaserverless.method).view.update = {
+    option(kalix.method).view.update = {
       table: "extremes_view"
       transform_updates: true
     };
@@ -27,7 +27,7 @@ service WeatherStationExtremes {
 
 
   rpc GetAggregations(google.protobuf.Empty) returns (stream be.reaktika.weatherstation.domain.aggregations.WeatherStationExtremesState) {
-    option (akkaserverless.method).view.query = {
+    option (kalix.method).view.query = {
       query: "SELECT * from extremes_view"
     };
     option (google.api.http) = {

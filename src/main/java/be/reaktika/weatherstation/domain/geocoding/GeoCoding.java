@@ -5,12 +5,11 @@
 package be.reaktika.weatherstation.domain.geocoding;
 
 import be.reaktika.weatherstation.action.WeatherStationToTopic.WeatherStationData;
-import be.reaktika.weatherstation.action.geocoding.GeoCodingPublishService;
 import be.reaktika.weatherstation.domain.aggregations.GeoCodingService;
 import be.reaktika.weatherstation.domain.aggregations.WeatherStationAggregation;
-import com.akkaserverless.javasdk.impl.GrpcClients;
-import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
 import com.google.protobuf.Empty;
+import kalix.javasdk.SideEffect;
+import kalix.javasdk.valueentity.ValueEntityContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,23 +18,12 @@ public class GeoCoding extends AbstractGeoCoding {
   @SuppressWarnings("unused")
   private static final Logger logger = LoggerFactory.getLogger(GeoCoding.class);
   private final String entityId;
-  //private final ServiceCallRef<GeoCodingModel.CountryMeasurements> geocodingPublisher;
-  private final GeoCodingPublishService geoCodingPublishService;
+
+
 
 
   public GeoCoding(ValueEntityContext context) {
     this.entityId = context.entityId();
-    var system = context.materializer().system();
-    geoCodingPublishService = new GrpcClients(system.systemImpl()).getGrpcClient(GeoCodingPublishService.class,
-            "reactive-weather");
-    /*
-    cfr. https://discuss.lightbend.com/t/publishing-to-a-topic-from-an-action-fails-silently/8965/1
-    geocodingPublisher = context.serviceCallFactory()
-            .lookup("be.reaktika.weatherstation.action.geocoding.GeoCodingPublishService",
-                    "PublishMeasurements",
-                    GeoCodingModel.CountryMeasurements.class);
-
-     */
   }
 
   @Override
@@ -68,14 +56,13 @@ public class GeoCoding extends AbstractGeoCoding {
       var toPublish = GeoCodingModel.CountryMeasurements
               .newBuilder().setCountry(c);
       logger.info("publishing " + toPublish + " to topic");
-      geoCodingPublishService.publishMeasurements(toPublish.build()).toCompletableFuture().thenAccept(d -> {
-        logger.info("done publishing CountryMeasurements to topic");
-      });
+      var geocodingPublishCall = components().geoCodingPublishServiceAction().publishMeasurements(toPublish.build());
+
       logger.info("updating state");
       return effects()
               .updateState(stateBuilder.build())
-              .thenReply(Empty.getDefaultInstance());
-              //.addSideEffects(SideEffect.of(geocodingPublisher.createCall(toPublish.build())));
+              .thenReply(Empty.getDefaultInstance())
+              .addSideEffects(SideEffect.of(geocodingPublishCall));
     }else {
       logger.info("empty reply");
       return effects().reply(Empty.getDefaultInstance());
@@ -98,12 +85,11 @@ public class GeoCoding extends AbstractGeoCoding {
       });
       logger.info("forwarding temperatures for country " + country);
       logger.info("publishing to topic");
-      geoCodingPublishService.publishMeasurements(builder.build()).toCompletableFuture().thenAccept(d -> {
-        logger.info("DONE");
-      });
+      var geocodingPublishCall = components().geoCodingPublishServiceAction().publishMeasurements(builder.build());
+
       return effects()
-              .reply(Empty.getDefaultInstance());
-              //.addSideEffects(SideEffect.of(geocodingPublisher.createCall(builder.build())));
+              .reply(Empty.getDefaultInstance())
+              .addSideEffects(SideEffect.of(geocodingPublishCall));
     } else {
       logger.warn("no country found for station " + data.getStationId());
       return effects().reply(Empty.getDefaultInstance());

@@ -1,6 +1,10 @@
 package be.reaktika.weatherstation.action;
 
+import be.reaktika.weatherstation.domain.WeatherStationDomain;
+import com.google.protobuf.Timestamp;
 import org.junit.Test;
+
+import static org.junit.Assert.assertEquals;
 
 // This class was initially generated based on the .proto definition by Akka Serverless tooling.
 //
@@ -22,13 +26,33 @@ public class WeatherStationToTopicServiceActionTest {
   @Test
   public void publishStationRegisteredTest() {
     WeatherStationToTopicServiceActionTestKit testKit = WeatherStationToTopicServiceActionTestKit.of(WeatherStationToTopicServiceAction::new);
+
+    var registeredResult = testKit.publishStationRegistered(WeatherStationDomain.StationRegistered
+            .newBuilder()
+            .setStationId("1").build());
+    assertEquals("1", registeredResult.getReply().getStationId());
     // ActionResult<WeatherStationToTopic.WeatherStationData> result = testKit.publishStationRegistered(WeatherStationDomain.StationRegistered.newBuilder()...build());
   }
 
   @Test
   public void publishTemperatureRegisteredTest() {
     WeatherStationToTopicServiceActionTestKit testKit = WeatherStationToTopicServiceActionTestKit.of(WeatherStationToTopicServiceAction::new);
-    // ActionResult<WeatherStationToTopic.WeatherStationData> result = testKit.publishTemperatureRegistered(WeatherStationDomain.TemperaturesCelciusAdded.newBuilder()...build());
+    var temp1 = WeatherStationDomain.Temperature
+            .newBuilder()
+            .setMeasurementTime(Timestamp.newBuilder().build())
+            .setTemperatureCelcius(10)
+            .build();
+    var temp2 = WeatherStationDomain.Temperature
+            .newBuilder()
+            .setMeasurementTime(Timestamp.newBuilder().build())
+            .setTemperatureCelcius(5)
+            .build();
+    var tempRegisteredResult = testKit.publishTemperatureRegistered(WeatherStationDomain.TemperaturesCelciusAdded
+            .newBuilder().setStationId("1")
+            .addTemperature(temp1)
+            .addTemperature(temp2)
+            .build());
+    assertEquals("1", tempRegisteredResult.getReply().getStationId());
   }
 
   @Test

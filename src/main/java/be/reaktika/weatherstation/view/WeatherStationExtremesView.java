@@ -5,7 +5,7 @@
 package be.reaktika.weatherstation.view;
 
 import be.reaktika.weatherstation.domain.aggregations.WeatherStationExtremesAggregation;
-import com.akkaserverless.javasdk.view.ViewContext;
+import kalix.javasdk.view.ViewContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

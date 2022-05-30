@@ -6,8 +6,8 @@ package be.reaktika.weatherstation.domain.aggregations;
 
 import be.reaktika.weatherstation.action.WeatherStationToTopic.WeatherStationData;
 import be.reaktika.weatherstation.action.WeatherStationToTopic.WeatherStationTemperatures;
-import com.akkaserverless.javasdk.valueentity.ValueEntityContext;
 import com.google.protobuf.Empty;
+import kalix.javasdk.valueentity.ValueEntityContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

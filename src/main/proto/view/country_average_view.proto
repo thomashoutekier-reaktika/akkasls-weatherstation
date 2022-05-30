@@ -4,7 +4,7 @@ package be.reaktika.weatherstation.view;
 
 option java_outer_classname = "CountryAverageViewModel";
 
-import "akkaserverless/annotations.proto";
+import "kalix/annotations.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
 import "domain/weatherstation_domain.proto";
@@ -25,14 +25,14 @@ message CountryAverageRecord {
 
 
 service CountryAverage {
-  option (akkaserverless.service) = {
-    type: SERVICE_TYPE_VIEW
+  option (kalix.codegen) = {
+    view: {}
   };
   rpc ProcessCountryMeasurement(be.reaktika.weatherstation.action.geocoding.CountryData) returns (AveragePerCountryState) {
-    option (akkaserverless.method).eventing.in = {
+    option (kalix.method).eventing.in = {
       topic: "measurements_per_country"
     };
-    option(akkaserverless.method).view.update = {
+    option (kalix.method).view.update = {
       table: "averagePerCountry"
       transform_updates: true
     };
@@ -40,7 +40,7 @@ service CountryAverage {
 
 
   rpc GetCountryAverage(google.protobuf.Empty) returns (AveragePerCountryState) {
-    option (akkaserverless.method).view.query = {
+    option (kalix.method).view.query = {
       query: "SELECT * from averagePerCountry"
     };
     option (google.api.http) = {

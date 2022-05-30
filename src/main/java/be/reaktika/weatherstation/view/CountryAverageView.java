@@ -3,7 +3,7 @@ package be.reaktika.weatherstation.view;
 import be.reaktika.weatherstation.action.geocoding.GeoCodingDataPublish;
 import be.reaktika.weatherstation.view.CountryAverageViewModel.AveragePerCountryState;
 import be.reaktika.weatherstation.view.CountryAverageViewModel.CountryAverageRecord;
-import com.akkaserverless.javasdk.view.ViewContext;
+import kalix.javasdk.view.ViewContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

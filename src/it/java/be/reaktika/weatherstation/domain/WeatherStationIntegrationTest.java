@@ -1,8 +1,7 @@
 package be.reaktika.weatherstation.domain;
 
 import be.reaktika.weatherstation.Main;
-import com.akkaserverless.javasdk.testkit.junit.AkkaServerlessTestKitResource;
-import com.google.protobuf.Empty;
+import kalix.javasdk.testkit.junit.KalixTestKitResource;
 import org.junit.ClassRule;
 import org.junit.Test;
 
@@ -21,8 +20,7 @@ public class WeatherStationIntegrationTest {
    * The test kit starts both the service container and the Akka Serverless proxy.
    */
   @ClassRule
-  public static final AkkaServerlessTestKitResource testKit =
-    new AkkaServerlessTestKitResource(Main.createAkkaServerless());
+  public static final KalixTestKitResource testKit = new KalixTestKitResource(Main.createKalix());
 
   /**
    * Use the generated gRPC client to call the service through the Akka Serverless proxy.
@@ -36,21 +34,26 @@ public class WeatherStationIntegrationTest {
   @Test
   public void registerStationOnNonExistingEntity() throws Exception {
     // TODO: set fields in command, and provide assertions to match replies
-    // client.registerStation(WeatherStationDomain.StationRegistrationCommand.newBuilder().build())
-    //         .toCompletableFuture().get(5, SECONDS);
+     client.registerStation(WeatherStationDomain.StationRegistrationCommand.newBuilder()
+             .setStationId("1")
+             .setLatitude(2.)
+             .setLongitude(2.)
+             .build())
+             .toCompletableFuture().get(5, SECONDS);
   }
 
   @Test
   public void publishTemperatureReportOnNonExistingEntity() throws Exception {
     // TODO: set fields in command, and provide assertions to match replies
-    // client.publishTemperatureReport(WeatherStationDomain.StationTemperatureCommand.newBuilder().build())
-    //         .toCompletableFuture().get(5, SECONDS);
+     client.publishTemperatureReport(WeatherStationDomain.StationTemperatureCommand.newBuilder()
+             .setStationId("1").build())
+             .toCompletableFuture().get(5, SECONDS);
   }
 
   @Test
   public void publishWindspeedReportOnNonExistingEntity() throws Exception {
     // TODO: set fields in command, and provide assertions to match replies
-    // client.publishWindspeedReport(WeatherStationDomain.StationWindspeedCommand.newBuilder().build())
-    //         .toCompletableFuture().get(5, SECONDS);
+     client.publishWindspeedReport(WeatherStationDomain.StationWindspeedCommand.newBuilder().setStationId("1").build())
+             .toCompletableFuture().get(5, SECONDS);
   }
 }

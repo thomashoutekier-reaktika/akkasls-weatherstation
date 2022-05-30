@@ -4,7 +4,7 @@ import be.reaktika.weatherstation.action.WeatherStationToTopic.WeatherStationDat
 import be.reaktika.weatherstation.action.WeatherStationToTopic.WeatherStationTemperatures;
 import be.reaktika.weatherstation.action.WeatherStationToTopic.WeatherStationWindspeeds;
 import be.reaktika.weatherstation.domain.WeatherStationDomain;
-import com.akkaserverless.javasdk.action.ActionCreationContext;
+import kalix.javasdk.action.ActionCreationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -1,10 +1,9 @@
 package be.reaktika.weatherstation.action;
 
 import be.reaktika.weatherstation.domain.aggregations.WeatherStationAggregation;
-import com.akkaserverless.javasdk.ServiceCallRef;
-import com.akkaserverless.javasdk.SideEffect;
-import com.akkaserverless.javasdk.action.ActionCreationContext;
 import com.google.protobuf.Empty;
+import kalix.javasdk.SideEffect;
+import kalix.javasdk.action.ActionCreationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,14 +17,8 @@ public class WeatherStationDataConsumeServiceAction extends AbstractWeatherStati
 
   private final Logger logger = LoggerFactory.getLogger(WeatherStationDataConsumeServiceAction.class);
 
-  private final ServiceCallRef<WeatherStationAggregation.AddToAggregationCommand> extremesAggregator;
-  private final ServiceCallRef<WeatherStationAggregation.AddToAggregationCommand> geoCodingAggregator;
-
-
   public WeatherStationDataConsumeServiceAction(ActionCreationContext ctx) {
-    this.extremesAggregator = ctx.serviceCallFactory().lookup("be.reaktika.weatherstation.domain.aggregations.WeatherStationExtremesEntityService","RegisterData", WeatherStationAggregation.AddToAggregationCommand.class);
-    this.geoCodingAggregator = ctx.serviceCallFactory().lookup("be.reaktika.weatherstation.domain.geocoding.GeoCodingEntityService","RegisterData", WeatherStationAggregation.AddToAggregationCommand.class);
-    logger.info("created WeatherStationDataConsumeServiceAction");
+        logger.info("created WeatherStationDataConsumeServiceAction");
   }
 
   /** Handler for "DispatchWeatherStationData". */
@@ -39,9 +32,12 @@ public class WeatherStationDataConsumeServiceAction extends AbstractWeatherStati
             .setType(WeatherStationAggregation.AggregationType.COUNTRY)
             .setWeatherdata(data);
 
+    var extremesCall = components().weatherStationExtremes().registerData(extremesCommand.build());
+    var geocodingCall = components().geoCoding().registerData(countryCommand.build());
+
     return effects().reply(Empty.getDefaultInstance())
-            .addSideEffect(SideEffect.of(extremesAggregator.createCall(extremesCommand.build())))
-            .addSideEffect(SideEffect.of(geoCodingAggregator.createCall(countryCommand.build())));
+            .addSideEffect(SideEffect.of(extremesCall))
+            .addSideEffect(SideEffect.of(geocodingCall));
 
   }
 }

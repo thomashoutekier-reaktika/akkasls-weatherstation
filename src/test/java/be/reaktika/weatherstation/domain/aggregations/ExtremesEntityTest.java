@@ -1,9 +1,8 @@
 package be.reaktika.weatherstation.domain.aggregations;
 
 import be.reaktika.weatherstation.action.WeatherStationToTopic;
-import com.akkaserverless.javasdk.ServiceCallFactory;
-import com.akkaserverless.javasdk.valueentity.CommandContext;
 import com.google.protobuf.Timestamp;
+import kalix.javasdk.valueentity.CommandContext;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -12,14 +11,10 @@ import static org.junit.Assert.assertEquals;
 
 public class ExtremesEntityTest {
     private CommandContext context = Mockito.mock(CommandContext.class);
-    private ServiceCallFactory factoryMock = Mockito.mock(ServiceCallFactory.class);
-    //private ExtremesEntity entity;
 
     @Before
     public void init(){
         Mockito.reset(context);
-        Mockito.reset(factoryMock);
-        Mockito.when(context.serviceCallFactory()).thenReturn(factoryMock);
     }
 
     @Test
