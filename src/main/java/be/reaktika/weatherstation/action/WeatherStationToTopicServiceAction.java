@@ -4,6 +4,7 @@ import be.reaktika.weatherstation.action.WeatherStationToTopic.WeatherStationDat
 import be.reaktika.weatherstation.action.WeatherStationToTopic.WeatherStationTemperatures;
 import be.reaktika.weatherstation.action.WeatherStationToTopic.WeatherStationWindspeeds;
 import be.reaktika.weatherstation.domain.WeatherStationDomain;
+import kalix.javasdk.Metadata;
 import kalix.javasdk.action.ActionCreationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +32,8 @@ public class WeatherStationToTopicServiceAction extends AbstractWeatherStationTo
             .setStationName(event.getStationName())
             .build();
     logger.info("publishing " + data);
-    return effects().reply(data);
+    var metadata = Metadata.EMPTY.set("ce-subject", event.getStationId());
+    return effects().reply(data, metadata);
   }
 
   /** Handler for "PublishTemperatureRegistered". */
@@ -48,7 +50,8 @@ public class WeatherStationToTopicServiceAction extends AbstractWeatherStationTo
     });
     var data = builder.build();
     logger.info("publishing " + data);
-    return effects().reply(data);
+    var metadata = Metadata.EMPTY.set("ce-subject", "data_"+ event.getStationId());
+    return effects().reply(data, metadata);
   }
 
   /** Handler for "PublishWindspeedRegistered". */
@@ -66,6 +69,7 @@ public class WeatherStationToTopicServiceAction extends AbstractWeatherStationTo
     });
     var data = builder.build();
     logger.info("publishing " + data);
-    return effects().reply(data);
+    var metadata = Metadata.EMPTY.set("ce-subject", "data_"+ event.getStationId());
+    return effects().reply(data, metadata);
   }
 }

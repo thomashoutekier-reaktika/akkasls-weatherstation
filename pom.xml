@@ -4,14 +4,14 @@
 
   <groupId>be.reaktika</groupId>
   <artifactId>reactive-weather-kalix</artifactId>
-  <version>1.13.0</version>
+  <version>1.13.3</version>
   <packaging>jar</packaging>
 
   <name>reactive-weather</name>
     <properties>
 
       <!-- TODO Update to your own Docker repository or Docker Hub scope -->
-      <dockerImage>docker-repo/${project.artifactId}</dockerImage>
+      <dockerImage>thomashoutekier83/${project.artifactId}</dockerImage>
       <dockerTag>${project.version}</dockerTag>
       <mainClass>be.reaktika.weatherstation.Main</mainClass>
       <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
@@ -19,7 +19,7 @@
       <jdk.target>11</jdk.target>
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-      <kalix-sdk.version>1.0.2</kalix-sdk.version>
+      <kalix-sdk.version>1.0.4</kalix-sdk.version>
       <akka-grpc.version>2.1.4</akka-grpc.version>
 
       <jackson-version>2.9.7</jackson-version>
@@ -145,11 +145,6 @@
                   <arg>/maven/${project.build.finalName}.jar</arg>
                 </entryPoint>
               </build>
-              <run>
-                <env>
-                  <OPENCAGE_API_KEY>aee076fdf67c4574b9bb1bcc431d340c</OPENCAGE_API_KEY>
-                </env>
-              </run>
             </image>
           </images>
         </configuration>
@@ -325,6 +320,12 @@
       <groupId>com.byteowls</groupId>
       <artifactId>jopencage</artifactId>
       <version>1.4.0</version>
+    </dependency>
+    <dependency>
+      <!-- for JSON formatted logging -->
+      <groupId>ch.qos.logback.contrib</groupId>
+      <artifactId>logback-jackson</artifactId>
+      <version>0.1.5</version>
     </dependency>
     <!--opencage dependencies-->
     <dependency>

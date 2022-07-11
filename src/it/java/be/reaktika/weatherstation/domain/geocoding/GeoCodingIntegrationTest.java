@@ -1,6 +1,7 @@
 package be.reaktika.weatherstation.domain.geocoding;
 
 import be.reaktika.weatherstation.Main;
+import be.reaktika.weatherstation.action.WeatherStationToTopic;
 import be.reaktika.weatherstation.domain.aggregations.GeoCodingService;
 import be.reaktika.weatherstation.domain.aggregations.WeatherStationAggregation;
 import kalix.javasdk.testkit.junit.KalixTestKitResource;
@@ -51,7 +52,7 @@ public class GeoCodingIntegrationTest {
   @Test
   public void registerDataOnNonExistingEntity() throws Exception {
     // TODO: set fields in command, and provide assertions to match replies
-    client.registerData(WeatherStationAggregation.AddToAggregationCommand.newBuilder().setType(WeatherStationAggregation.AggregationType.COUNTRY).build())
+    client.registerData(WeatherStationToTopic.WeatherStationData.newBuilder().build())
             .toCompletableFuture().get(5, SECONDS);
   }
 }

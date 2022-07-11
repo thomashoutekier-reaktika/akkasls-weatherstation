@@ -7,8 +7,6 @@ option java_outer_classname = "CountryAverageViewModel";
 import "kalix/annotations.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
-import "domain/weatherstation_domain.proto";
-import "domain/aggregations/weatherstation_geocoding.proto";
 import "action/weatherstation_geocoding_publishing.proto";
 
 message AveragePerCountryState {
@@ -37,7 +35,6 @@ service CountryAverage {
       transform_updates: true
     };
   }
-
 
   rpc GetCountryAverage(google.protobuf.Empty) returns (AveragePerCountryState) {
     option (kalix.method).view.query = {

@@ -6,6 +6,7 @@ option java_outer_classname = "WeatherStationDataConsume";
 
 import "action/weatherstation_publish.proto";
 import "google/protobuf/empty.proto";
+import "google/protobuf/any.proto";
 import "kalix/annotations.proto";
 
 
@@ -14,6 +15,11 @@ service WeatherStationDataConsumeService {
         action: {}
     };
     rpc DispatchWeatherStationData(be.reaktika.weatherstation.action.WeatherStationData) returns (google.protobuf.Empty){
+        option (kalix.method).eventing.in = {
+            topic: "weatherstation_data"
+        };
+    }
+    rpc IgnoreOtherEvents(google.protobuf.Any) returns (google.protobuf.Empty) {
         option (kalix.method).eventing.in = {
             topic: "weatherstation_data"
         };

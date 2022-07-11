@@ -23,7 +23,7 @@ message WeatherStationOverallAverageState {
 }
 
 
-service WeatherStationOverallAverage {
+service WeatherStationOverallAverageService {
   option (kalix.codegen) = {
     view: {}
   };

@@ -21,7 +21,7 @@ public class GeoCodingPublishServiceAction extends AbstractGeoCodingPublishServi
   /** Handler for "PublishMeasurements". */
   @Override
   public Effect<GeoCodingDataPublish.CountryData> publishMeasurements(GeoCodingModel.CountryMeasurements countryMeasurements) {
-    logger.info("publisher received measurements");
+    logger.info("publisher received measurements for " + countryMeasurements.getCountry());
 
     var builder = GeoCodingDataPublish.CountryData.newBuilder()
             .setCountry(countryMeasurements.getCountry());
@@ -41,7 +41,8 @@ public class GeoCodingPublishServiceAction extends AbstractGeoCodingPublishServi
             )
             .forEach(d -> builder.addWindspeeds(d));
     var toPublish = builder.build();
+    var metadata = actionContext().metadata().set("ce-subject", countryMeasurements.getCountry());
     logger.info("publishing " + toPublish);
-    return effects().reply(toPublish);
+    return effects().reply(toPublish, metadata);
   }
 }

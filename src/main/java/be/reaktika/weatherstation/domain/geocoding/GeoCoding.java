@@ -4,6 +4,7 @@
  */
 package be.reaktika.weatherstation.domain.geocoding;
 
+import be.reaktika.weatherstation.action.WeatherStationToTopic;
 import be.reaktika.weatherstation.action.WeatherStationToTopic.WeatherStationData;
 import be.reaktika.weatherstation.domain.aggregations.GeoCodingService;
 import be.reaktika.weatherstation.domain.aggregations.WeatherStationAggregation;
@@ -32,15 +33,15 @@ public class GeoCoding extends AbstractGeoCoding {
   }
 
   @Override
-  public Effect<Empty> registerData(GeoCodingModel.GeoCodingState currentState, WeatherStationAggregation.AddToAggregationCommand command) {
-    logger.info("registering weatherstation data " + command);
-    if (command.getWeatherdata().getTemperaturesList().isEmpty() && command.getWeatherdata().getWindspeedsList().isEmpty()){
-      return stationRegistered(command.getWeatherdata(), currentState);
+  public Effect<Empty> registerData(GeoCodingModel.GeoCodingState currentState, WeatherStationToTopic.WeatherStationData data) {
+    logger.info("registering weatherstation data " + data);
+    if (data.getTemperaturesList().isEmpty() && data.getWindspeedsList().isEmpty()){
+      return stationRegistered(data, currentState);
     }
-    if (!command.getWeatherdata().getTemperaturesList().isEmpty()){
-      return processTemperatureAdded(command.getWeatherdata(), currentState);
+    if (!data.getTemperaturesList().isEmpty()){
+      return processTemperatureAdded(data, currentState);
     }
-    return processWindspeedAdded(command.getWeatherdata(), currentState);
+    return processWindspeedAdded(data, currentState);
   }
 
   private Effect<Empty> stationRegistered(WeatherStationData data, GeoCodingModel.GeoCodingState currentState){

@@ -7,26 +7,49 @@ option java_outer_classname = "WeatherStationExtremesViewModel";
 import "kalix/annotations.proto";
 import "google/api/annotations.proto";
 import "google/protobuf/empty.proto";
-import "domain/aggregations/weatherstation_extremes.proto";
+import "google/protobuf/any.proto";
+import "action/weatherstation_publish.proto";
+import "domain/aggregations/weatherstation_aggregations.proto";
 
+message WeatherStationExtremesState {
+  TemperatureRecord maxTemperature = 1;
+  TemperatureRecord minTemperature = 2;
+  WindRecord windspeed = 3;
+}
+
+message TemperatureRecord {
+  be.reaktika.weatherstation.domain.aggregations.TemperatureMeasurement current = 1;
+  be.reaktika.weatherstation.domain.aggregations.TemperatureMeasurement previousRecord = 2;
+}
+
+
+message WindRecord {
+  be.reaktika.weatherstation.domain.aggregations.WindspeedMeasurement current = 1;
+  be.reaktika.weatherstation.domain.aggregations.WindspeedMeasurement previousRecord = 2;
+}
 
 service WeatherStationExtremes {
   option (kalix.codegen) = {
     view: {}
   };
 
-  rpc UpdateAggregations(be.reaktika.weatherstation.domain.aggregations.WeatherStationExtremesState) returns (be.reaktika.weatherstation.domain.aggregations.WeatherStationExtremesState) {
+  rpc UpdateAggregations(be.reaktika.weatherstation.action.WeatherStationData) returns (be.reaktika.weatherstation.view.WeatherStationExtremesState) {
     option (kalix.method).eventing.in = {
-      value_entity: "weatherstationextremes"
+      topic: "weatherstation_data"
     };
     option(kalix.method).view.update = {
       table: "extremes_view"
       transform_updates: true
     };
   }
+  rpc IgnoreOtherEvents(google.protobuf.Any) returns (be.reaktika.weatherstation.view.WeatherStationExtremesState) {
+    option (kalix.method).eventing.in = {
+      topic: "weatherstation_data"
+    };
+  }
 
 
-  rpc GetAggregations(google.protobuf.Empty) returns (stream be.reaktika.weatherstation.domain.aggregations.WeatherStationExtremesState) {
+  rpc GetAggregations(google.protobuf.Empty) returns (stream be.reaktika.weatherstation.view.WeatherStationExtremesState) {
     option (kalix.method).view.query = {
       query: "SELECT * from extremes_view"
     };
