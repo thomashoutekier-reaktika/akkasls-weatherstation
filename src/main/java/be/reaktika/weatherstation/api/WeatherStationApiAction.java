@@ -1,9 +1,9 @@
 package be.reaktika.weatherstation.api;
 
 import be.reaktika.weatherstation.domain.WeatherStationDomain;
-import com.akkaserverless.javasdk.ServiceCallRef;
-import com.akkaserverless.javasdk.action.ActionCreationContext;
 import com.google.protobuf.Empty;
+import kalix.javasdk.DeferredCall;
+import kalix.javasdk.action.ActionCreationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,16 +15,9 @@ import org.slf4j.LoggerFactory;
 /** An action. */
 public class WeatherStationApiAction extends AbstractWeatherStationApiAction {
 
-  private static final String WEATHERSTATION_ENTITY_SERVICE_NAME = "be.reaktika.weatherstation.domain.WeatherStationEntityService";
   private final Logger logger = LoggerFactory.getLogger(WeatherStationApiAction.class);
-  private final ServiceCallRef<WeatherStationDomain.StationRegistrationCommand> stationRegistationService;
-  private final ServiceCallRef<WeatherStationDomain.StationTemperatureCommand> temperatureRegistationService;
-  private final ServiceCallRef<WeatherStationDomain.StationWindspeedCommand> windspeedRegistationService;
 
   public WeatherStationApiAction(ActionCreationContext ctx) {
-    this.stationRegistationService = ctx.serviceCallFactory().lookup(WEATHERSTATION_ENTITY_SERVICE_NAME,"RegisterStation", WeatherStationDomain.StationRegistrationCommand.class);
-    this.temperatureRegistationService = ctx.serviceCallFactory().lookup(WEATHERSTATION_ENTITY_SERVICE_NAME,"PublishTemperatureReport", WeatherStationDomain.StationTemperatureCommand.class);
-    this.windspeedRegistationService = ctx.serviceCallFactory().lookup(WEATHERSTATION_ENTITY_SERVICE_NAME,"PublishWindspeedReport", WeatherStationDomain.StationWindspeedCommand.class);
   }
 
   @Override
@@ -35,7 +28,8 @@ public class WeatherStationApiAction extends AbstractWeatherStationApiAction {
             .setStationId(request.getStationId())
             .setLongitude(request.getLongitude())
             .setLatitude(request.getLatitude()).build();
-    return effects().forward(stationRegistationService.createCall(command));
+    DeferredCall<WeatherStationDomain.StationRegistrationCommand,Empty> call = components().weatherStation().registerStation(command);
+    return effects().forward(call);
   }
 
   @Override
@@ -48,7 +42,7 @@ public class WeatherStationApiAction extends AbstractWeatherStationApiAction {
             .setTemperatureCelcius(t.getTemperatureCelcius())
             .build()));
 
-    return effects().forward(temperatureRegistationService.createCall(commandBuilder.build()));
+    return effects().forward(components().weatherStation().publishTemperatureReport(commandBuilder.build()));
   }
 
   @Override
@@ -60,7 +54,7 @@ public class WeatherStationApiAction extends AbstractWeatherStationApiAction {
             .setWindspeedMPerS(m.getWindspeedMPerS())
             .build()));
 
-    return effects().forward(windspeedRegistationService.createCall(commandBuilder.build()));
+    return effects().forward(components().weatherStation().publishWindspeedReport(commandBuilder.build()));
   }
 
 }

@@ -5,8 +5,8 @@
 package be.reaktika.weatherstation.domain;
 
 import be.reaktika.weatherstation.domain.WeatherStationDomain.*;
-import com.akkaserverless.javasdk.eventsourcedentity.EventSourcedEntityContext;
 import com.google.protobuf.Empty;
+import kalix.javasdk.eventsourcedentity.EventSourcedEntityContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

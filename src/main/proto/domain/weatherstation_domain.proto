@@ -4,17 +4,9 @@ package be.reaktika.weatherstation.domain;
 
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
-import "akkaserverless/annotations.proto";
+import "kalix/annotations.proto";
 
 option java_outer_classname = "WeatherStationDomain";
-
-// Describes how this domain relates to an event sourced entity
-option (akkaserverless.file).event_sourced_entity = {
-    name: "WeatherStation"
-    entity_type: "weatherstation"
-    state: "WeatherStationState"
-    events: ["StationRegistered", "TemperaturesCelciusAdded", "WindspeedsAdded"]
-};
 
 message WeatherStationState {
     string station_id = 1;
@@ -25,14 +17,14 @@ message WeatherStationState {
 
 //the commands
 message StationRegistrationCommand {
-    string station_id = 1 [(akkaserverless.field).entity_key = true];
+    string station_id = 1 [(kalix.field).entity_key = true];
     string station_name = 2;
     double latitude = 3;
     double longitude = 4;
 }
 
 message StationTemperatureCommand {
-    string station_id = 1 [(akkaserverless.field).entity_key = true];
+    string station_id = 1 [(kalix.field).entity_key = true];
     repeated TemperatureMeasurements temp_measurements = 2;
 }
 
@@ -42,7 +34,7 @@ message TemperatureMeasurements {
 }
 
 message StationWindspeedCommand {
-    string station_id = 1 [(akkaserverless.field).entity_key = true];
+    string station_id = 1 [(kalix.field).entity_key = true];
     repeated WindspeedMeasurement windspeed_measurements = 2;
 }
 
@@ -81,11 +73,16 @@ message Windspeed {
 
 
 service WeatherStationEntityService {
-    option (akkaserverless.service) = {
-        type : SERVICE_TYPE_ENTITY
-        component : "be.reaktika.weatherstation.domain.WeatherStation"
+    option (kalix.codegen) = {
+        event_sourced_entity: {
+            name: "be.reaktika.weatherstation.domain.WeatherStation"
+            entity_type: "weatherstation"
+            state: "be.reaktika.weatherstation.domain.WeatherStationState"
+            events: ["be.reaktika.weatherstation.domain.StationRegistered",
+                    "be.reaktika.weatherstation.domain.TemperaturesCelciusAdded",
+                "be.reaktika.weatherstation.domain.WindspeedsAdded"]
+        }
     };
-
     rpc RegisterStation(StationRegistrationCommand) returns (google.protobuf.Empty);
     rpc PublishTemperatureReport(StationTemperatureCommand) returns (google.protobuf.Empty);
     rpc PublishWindspeedReport(StationWindspeedCommand) returns (google.protobuf.Empty);

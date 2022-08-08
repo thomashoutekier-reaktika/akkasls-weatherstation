@@ -4,10 +4,15 @@
  */
 package be.reaktika.weatherstation.view;
 
-import be.reaktika.weatherstation.domain.aggregations.WeatherStationExtremesAggregation;
-import com.akkaserverless.javasdk.view.ViewContext;
+import be.reaktika.weatherstation.action.WeatherStationToTopic;
+import be.reaktika.weatherstation.domain.aggregations.WeatherStationAggregation;
+import be.reaktika.weatherstation.view.WeatherStationExtremesViewModel.*;
+import kalix.javasdk.view.ViewContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Comparator;
+import java.util.stream.Collectors;
 
 public class WeatherStationExtremesView extends AbstractWeatherStationExtremesView {
 
@@ -15,13 +20,75 @@ public class WeatherStationExtremesView extends AbstractWeatherStationExtremesVi
 
   public WeatherStationExtremesView(ViewContext context) {}
 
+
   @Override
-  public WeatherStationExtremesAggregation.WeatherStationExtremesState emptyState() {
-    return WeatherStationExtremesAggregation.WeatherStationExtremesState.getDefaultInstance();
+  public UpdateEffect<WeatherStationExtremesState> updateAggregations(WeatherStationExtremesState currentState, WeatherStationToTopic.WeatherStationData data) {
+    if (!data.getTemperaturesList().isEmpty()){
+      logger.info("registering Temperature " + data.getTemperaturesList());
+      return aggregateTemperature(data, currentState);
+    } else if (!data.getWindspeedsList().isEmpty()){
+      logger.info("registering windspeed " + data.getWindspeedsList());
+      //TODO: implement this
+      return effects().updateState(currentState);
+    }else {
+      logger.info("registering station: nothing to aggregate");
+      return effects().updateState(currentState);
+    }
   }
 
   @Override
-  public UpdateEffect<WeatherStationExtremesAggregation.WeatherStationExtremesState> updateAggregations(WeatherStationExtremesAggregation.WeatherStationExtremesState currentState, WeatherStationExtremesAggregation.WeatherStationExtremesState event) {
-    return effects().updateState(event);
+  public WeatherStationExtremesState emptyState() {
+    return WeatherStationExtremesState.getDefaultInstance();
+  }
+
+  private UpdateEffect<WeatherStationExtremesState> aggregateTemperature(WeatherStationToTopic.WeatherStationData weatherdata, WeatherStationExtremesState currentExtremes) {
+    WeatherStationExtremesState.Builder newExtremesBuilder = WeatherStationExtremesState.newBuilder(currentExtremes);
+
+    var sorted = weatherdata.getTemperaturesList()
+            .stream()
+            .sorted(Comparator.comparingDouble(WeatherStationToTopic.WeatherStationTemperatures::getTemperatureCelcius))
+            .collect(Collectors.toList());
+    WeatherStationToTopic.WeatherStationTemperatures highestEvent = sorted.get(sorted.size()-1);
+    WeatherStationToTopic.WeatherStationTemperatures lowestEvent = sorted.get(0);
+
+    WeatherStationAggregation.TemperatureMeasurement highestInEvent = WeatherStationAggregation.TemperatureMeasurement.newBuilder()
+            .setMeasuredTemperature(highestEvent.getTemperatureCelcius())
+            .setMeasurementTime(highestEvent.getMeasurementTime())
+            .setStationId(weatherdata.getStationId())
+            .build();
+
+    WeatherStationAggregation.TemperatureMeasurement lowestInEvent = WeatherStationAggregation.TemperatureMeasurement.newBuilder()
+            .setMeasuredTemperature(lowestEvent.getTemperatureCelcius())
+            .setMeasurementTime(lowestEvent.getMeasurementTime())
+            .setStationId(weatherdata.getStationId())
+            .build();
+
+    TemperatureRecord previousMaxRecord = currentExtremes.hasMaxTemperature() ? currentExtremes.getMaxTemperature() : TemperatureRecord.newBuilder().setCurrent(highestInEvent).build();
+    TemperatureRecord previousMinRecord = currentExtremes.hasMinTemperature() ? currentExtremes.getMinTemperature() : TemperatureRecord.newBuilder().setCurrent(lowestInEvent).build();
+
+    //initialize the state for the first event
+    if (!currentExtremes.hasMaxTemperature()) {
+      newExtremesBuilder.setMaxTemperature(previousMaxRecord);
+    }
+    if (!currentExtremes.hasMinTemperature()){
+      newExtremesBuilder.setMinTemperature(previousMinRecord);
+    }
+
+
+    if(highestInEvent.getMeasuredTemperature() > previousMaxRecord.getCurrent().getMeasuredTemperature()){
+      logger.info("high temperature record is broken");
+      newExtremesBuilder.setMaxTemperature(TemperatureRecord.newBuilder()
+              .setCurrent(highestInEvent)
+              .setPreviousRecord(previousMaxRecord.getCurrent()));
+    }
+    if(lowestInEvent.getMeasuredTemperature() < previousMinRecord.getCurrent().getMeasuredTemperature()){
+      logger.info("low temperature record is broken");
+      newExtremesBuilder.setMinTemperature(TemperatureRecord.newBuilder()
+              .setCurrent(lowestInEvent)
+              .setPreviousRecord(previousMinRecord.getCurrent()));
+    }
+    var newExtremes = newExtremesBuilder.build();
+    return effects()
+            .updateState(newExtremes);
   }
 }

@@ -4,7 +4,7 @@ package be.reaktika.weatherstation.domain.aggregations;
 
 import "google/protobuf/timestamp.proto";
 import "action/weatherstation_publish.proto";
-import "akkaserverless/annotations.proto";
+import "kalix/annotations.proto";
 
 option java_outer_classname = "WeatherStationAggregation";
 
@@ -29,6 +29,6 @@ message WindspeedMeasurement {
 
 //commands
 message AddToAggregationCommand {
-  AggregationType type = 1  [(akkaserverless.field).entity_key = true];
+  AggregationType type = 1  [(kalix.field).entity_key = true];
   be.reaktika.weatherstation.action.WeatherStationData weatherdata = 2;
 }

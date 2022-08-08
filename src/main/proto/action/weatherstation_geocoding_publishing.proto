@@ -6,7 +6,7 @@ option java_outer_classname = "GeoCodingDataPublish";
 
 import "domain/aggregations/weatherstation_geocoding.proto";
 import "google/protobuf/timestamp.proto";
-import "akkaserverless/annotations.proto";
+import "kalix/annotations.proto";
 
 message CountryData {
   string country = 1;
@@ -26,14 +26,12 @@ message WindspeedData {
 
 
 service GeoCodingPublishService {
-  option (akkaserverless.service) = {
-    type : SERVICE_TYPE_ACTION
+  option (kalix.codegen) = {
+    action: {}
   };
   rpc PublishMeasurements(be.reaktika.weatherstation.domain.geocoding.CountryMeasurements) returns (be.reaktika.weatherstation.action.geocoding.CountryData) {
-    option (akkaserverless.method).eventing = {
-      out: {
-        topic: "measurements_per_country"
-      }
+    option (kalix.method).eventing.out = {
+      topic: "measurements_per_country"
     };
-  };
+  }
 }
